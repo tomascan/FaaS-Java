@@ -35,7 +35,7 @@ public class Controller {
         for (Invoker invoker : invokers) {
             if (invoker.hasEnoughMemory(requiredMemory)) {
                 for (Map<String, Integer> param : parameters) {
-                    results.add(invoker.executeAction(actions.get(actionName), param));
+                    results.add(invoker.executeAction(actions.get(actionName), param, requiredMemory));
                 }
                 return results;
             }
@@ -45,9 +45,11 @@ public class Controller {
 
 
     public Future<Integer> invoke_async(String actionName, Map<String, Integer> parameters) {
+        int memoryRequired = actionMemory.getOrDefault(actionName, 0);
+
         for (Invoker invoker : invokers) {
-            if (invoker.hasEnoughMemory(actionMemory.getOrDefault(actionName, 0))) {
-                return invoker.executeActionAsync(actions.get(actionName), parameters);
+            if (invoker.hasEnoughMemory(memoryRequired)) {
+                return invoker.executeActionAsync(actions.get(actionName), parameters, memoryRequired);
             }
         }
         throw new IllegalStateException("No hay suficiente memoria para ejecutar la acción de manera asíncrona");
