@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.function.Function;
 
 public class Controller {
@@ -26,20 +27,30 @@ public class Controller {
     public int invoke(String actionName, Map<String, Integer> parameters) {
         return this.invoke(actionName, List.of(parameters)).get(0);
     }
-    public List<Integer> invoke(String actionName, List<Map<String, Integer>> batchParameters) {
+    public List<Integer> invoke(String actionName, List<Map<String, Integer>> parameters) {
         List<Integer> results = new ArrayList<>();
         int memoryPerAction = actionMemory.getOrDefault(actionName, 0);
-        int requiredMemory = memoryPerAction * batchParameters.size(); // Asumimos que cada acción necesita 256MB
+        int requiredMemory = memoryPerAction * parameters.size(); // Asumimos que cada acción necesita 256MB
 
         for (Invoker invoker : invokers) {
             if (invoker.hasEnoughMemory(requiredMemory)) {
-                for (Map<String, Integer> parameters : batchParameters) {
-                    results.add(invoker.executeAction(actions.get(actionName), parameters));
+                for (Map<String, Integer> param : parameters) {
+                    results.add(invoker.executeAction(actions.get(actionName), param));
                 }
                 return results;
             }
         }
         throw new IllegalStateException("No hay suficiente memoria para ejecutar el grupo de invocaciones");
+    }
+
+
+    public Future<Integer> invoke_async(String actionName, Map<String, Integer> parameters) {
+        for (Invoker invoker : invokers) {
+            if (invoker.hasEnoughMemory(actionMemory.getOrDefault(actionName, 0))) {
+                return invoker.executeActionAsync(actions.get(actionName), parameters);
+            }
+        }
+        throw new IllegalStateException("No hay suficiente memoria para ejecutar la acción de manera asíncrona");
     }
 }
 
