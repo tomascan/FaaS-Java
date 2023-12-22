@@ -8,6 +8,7 @@ import java.util.function.Function;
 public class Invoker {
     private final ExecutorService executor;
     private AtomicInteger memory;
+    private int actionCount = 0;
 
     public Invoker(int mem) {
         this.memory = new AtomicInteger(mem);
@@ -30,6 +31,7 @@ public class Invoker {
     public int executeAction(Function<Map<String, Integer>, Integer> action, Map<String, Integer> parameters, int memoryRequired) {
         if (hasEnoughMemory(memoryRequired)) {
             reserveMemory(memoryRequired); // Reservar la memoria necesaria
+            actionCount++; //Al reservar memoria para una accion se suma tambien la accion a la cuenta del Invoker
             try {
                 return action.apply(parameters);
             } finally {
@@ -56,6 +58,11 @@ public class Invoker {
             }
         });
     }
+
+    public int getActionCount() {
+        return actionCount;
+    }
+
 
 
 }

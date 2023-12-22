@@ -1,19 +1,21 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RoundRobin implements Policy {
     @Override
-    public List<Integer> distributeFunctions(int totalFunctions, List<Integer> availableInvokers) {
-        List<Integer> functionsPerInvoker = new ArrayList<>();
-        int numInvokers = availableInvokers.size();
-        int functionsPerInvokerCount = totalFunctions / numInvokers;
-        int remainingFunctions = totalFunctions % numInvokers;
+    public Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction) {
+        Map<Invoker, List<Map<String, Integer>>> allocation = new HashMap<>();
+        int invokerIndex = 0;
 
-        for (int i = 0; i < numInvokers; i++) {
-            int functions = functionsPerInvokerCount + (i < remainingFunctions ? 1 : 0);
-            functionsPerInvoker.add(functions);
+        for (Map<String, Integer> action : actions) {
+            Invoker currentInvoker = invokers.get(invokerIndex);
+            allocation.computeIfAbsent(currentInvoker, k -> new ArrayList<>()).add(action);
+
+            invokerIndex = (invokerIndex + 1) % invokers.size();
         }
 
-        return functionsPerInvoker;
+        return allocation;
     }
 }

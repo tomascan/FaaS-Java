@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -7,10 +8,11 @@ import java.util.function.Function;
 
 public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        Controller controller = new Controller(1, 1024);
+        Controller controller = new Controller(4, 1024);
+        controller.setPolicy(new RoundRobin());
 
         // Registro de acciones
-        controller.registerAction("sumar", Actions.sumar, 340);
+        controller.registerAction("sumar", Actions.sumar, 100);
         controller.registerAction("restar", Actions.restar, 256);
         controller.registerAction("multiplicar", Actions.multiplicar, 256);
         controller.registerAction("dividir", Actions.dividir, 256);
@@ -51,6 +53,20 @@ public class Main {
             fut4.get();
 
         System.out.println("Todas las acciones han terminado --> "+fut4.get());
+
+        //Policy Managment en grupos de acciones
+        List<Map<String, Integer>> actions = new ArrayList<>();
+        for(int i = 0; i < 9; i++){
+            actions.add(Map.of("x", i, "y", i+1));
+        }
+
+        //Invocar las acciones y distribuirlas entre los Invokers
+        controller.invoke("sumar", actions);
+
+        //Mostrar el contador de acciones realizadas por cada Invoker
+        for(int i = 0; i < controller.invokers.length; i++){
+            System.out.println("Invoker " + (i + 1) + " realizó " + controller.invokers[i].getActionCount() + " acciones.");
+        }
 
 
 
