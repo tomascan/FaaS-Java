@@ -7,13 +7,25 @@ import java.util.function.Function;
 
 public class Invoker {
     private final ExecutorService executor;
-    private AtomicInteger memory;
+    private final AtomicInteger memory;
     private int actionCount = 0;
 
     public Invoker(int mem) {
         this.memory = new AtomicInteger(mem);
         this.executor = Executors.newCachedThreadPool();
     }
+
+
+    // Getter para memory
+    public int getMemory() {
+        return memory.get();
+    }
+
+    // Setter para memory
+    public void setMemory(int mem) {
+        this.memory.set(mem);
+    }
+
 
     public boolean hasEnoughMemory(int requiredMemory) {
         return memory.get() >= requiredMemory;

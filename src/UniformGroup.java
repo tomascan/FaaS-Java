@@ -1,19 +1,31 @@
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//public class UniformGroup implements Policy {
-//    @Override
-//    public List<Integer> distributeActions(int totalFunctions, List<Integer> availableInvokers) {
-//        List<Integer> functionsPerInvoker = new ArrayList<>();
-//        int numInvokers = availableInvokers.size();
-//        int functionsPerInvokerCount = totalFunctions / numInvokers;
-//        int remainingFunctions = totalFunctions % numInvokers;
-//
-//        for (int i = 0; i < numInvokers; i++) {
-//            int functions = functionsPerInvokerCount + (i < remainingFunctions ? 1 : 0);
-//            functionsPerInvoker.add(functions);
-//        }
-//
-//        return functionsPerInvoker;
-//    }
-//}
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class UniformGroup implements Policy {
+    private final int groupSize;
+
+    public UniformGroup(int groupSize) {
+        this.groupSize = groupSize;
+    }
+
+    @Override
+    public Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction) {
+        Map<Invoker, List<Map<String, Integer>>> allocation = new HashMap<>();
+        int currentCount = 0;
+        int invokerIndex = 0;
+
+        for (Map<String, Integer> action : actions) {
+            if (currentCount == groupSize) {
+                currentCount = 0;
+                invokerIndex = (invokerIndex + 1) % invokers.size();
+            }
+            Invoker currentInvoker = invokers.get(invokerIndex);
+            allocation.computeIfAbsent(currentInvoker, k -> new ArrayList<>()).add(action);
+            currentCount++;
+        }
+
+        return allocation;
+    }
+}

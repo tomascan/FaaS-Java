@@ -1,21 +1,39 @@
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//public class BigGroup implements Policy {
-//    @Override
-//    public List<Integer> distributeActions(int totalFunctions, List<Integer> availableInvokers) {
-//        List<Integer> functionsPerInvoker = new ArrayList<>();
-//        int numInvokers = availableInvokers.size();
-//        int groupSize = 6; // Tamaño del grupo deseado
-//
-//        while (totalFunctions > 0) {
-//            for (int i = 0; i < numInvokers && totalFunctions > 0; i++) {
-//                int functions = Math.min(groupSize, totalFunctions);
-//                functionsPerInvoker.add(functions);
-//                totalFunctions -= functions;
-//            }
-//        }
-//
-//        return functionsPerInvoker;
-//    }
-//}
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class BigGroup implements Policy {
+    private final int groupSize;
+
+
+    public BigGroup(int groupSize) {
+        this.groupSize = groupSize;
+    }
+
+    @Override
+    public Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction) {
+        Map<Invoker, List<Map<String, Integer>>> allocation = new HashMap<>();
+        int actionIndex = 0;
+
+        while (actionIndex < actions.size()) {
+            boolean assigned = false;
+            for (Invoker inv : invokers) {
+                int actionsCountForThisGroup = Math.min(groupSize, actions.size() - actionIndex);
+                int requiredMemoryForGroup = actionsCountForThisGroup * memoryPerAction;
+
+                if (inv.hasEnoughMemory(requiredMemoryForGroup)) {
+                    List<Map<String, Integer>> groupActions = new ArrayList<>(actions.subList(actionIndex, actionIndex + actionsCountForThisGroup));
+                    allocation.computeIfAbsent(inv, k -> new ArrayList<>()).addAll(groupActions);
+                    actionIndex += actionsCountForThisGroup;
+                    assigned = true;
+                    break;
+                }
+            }
+            if (!assigned) {
+                throw new IllegalStateException("No hay suficientes Invokers con memoria disponible");
+            }
+        }
+        return allocation;
+    }
+}
