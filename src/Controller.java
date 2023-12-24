@@ -2,14 +2,27 @@ import java.util.*;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
+/**
+ * Clase Controller que gestiona la invocación de acciones utilizando múltiples invocadores.
+ * Permite la registración y ejecución de acciones, tanto de manera sincrónica como asincrónica,
+ * y administra la distribución de las acciones entre los invocadores según una política definida.
+ */
 public class Controller {
-    final Invoker[] invokers;
-    private Policy policy;
+    final Invoker[] invokers; //Lista de Invokers
+    private Policy policy; //Policy Manager
 
+    // Mapa que asocia nombres de acción con sus respectivas funciones.
     private Map<String, Function<Map<String, Integer>, Integer>> actions = new HashMap<>();
-    private Map<String, Integer> actionMemory = new HashMap<>();
+    private Map<String, Integer> actionMemory = new HashMap<>(); // Mapa almacena la memoria requerida para cada acción.
 
-    // Constructor
+
+    /**
+     * Constructor de Controller.
+     * Inicializa un array de invocadores con la capacidad de memoria especificada.
+     *
+     * @param numberOfInvokers Número de invocadores a crear.
+     * @param invokerMemory    Memoria asignada a cada invocador.
+     */
     public Controller(int numberOfInvokers, int invokerMemory) {
         this.invokers = new Invoker[numberOfInvokers];
         for (int i = 0; i < numberOfInvokers; i++) {
@@ -17,21 +30,49 @@ public class Controller {
         }
     }
 
+
+    /**
+     * Establece la política de distribución de acciones.
+     *
+     * @param policy Objeto Policy a establecer.
+     */
     public void setPolicy(Policy policy){
         this.policy = policy;
     }
 
+
+    /**
+     * Registra una nueva acción con su nombre, función y memoria requerida.
+     *
+     * @param actionName Nombre de la acción.
+     * @param action     Función que implementa la acción.
+     * @param memory     Memoria requerida para la acción.
+     */
     public void registerAction(String actionName, Function<Map<String, Integer>, Integer> action, int memory) {
         actions.put(actionName, action);
         actionMemory.put(actionName, memory); // Almacenar la memoria requerida para la acción
     }
 
-    // Sobrecarga para invocación individual
+
+
+    /**
+     * Realiza una sobrecarga para una acción individual.
+     *
+     * @param actionName  Nombre de la acción a invocar.
+     * @param parameters  Parámetros requeridos para la acción.
+     * @return            Resultado de la invocación de la acción.
+     */
     public int invoke(String actionName, Map<String, Integer> parameters) {
         return this.invoke(actionName, List.of(parameters)).get(0);
     }
 
-    // Metodo para invocaciones grupales
+    /**
+     * Realiza invocaciones grupales de una acción.
+     *
+     * @param actionName  Nombre de la acción a invocar.
+     * @param parameters  Lista de mapas de parámetros para cada invocación.
+     * @return            Lista de resultados de las invocaciones.
+     */
     public List<Integer> invoke(String actionName, List<Map<String, Integer>> parameters) {
         List<Integer> results = new ArrayList<>();
         if (policy == null) {
@@ -39,7 +80,6 @@ public class Controller {
         }// La política distribuye las acciones y retorna la asignación
 
         Map<Invoker, List<Map<String, Integer>>> allocation = policy.distributeActions(parameters, Arrays.asList(invokers), actionMemory.getOrDefault(actionName, 0));
-
         // Ejecuta las acciones
         for (Map.Entry<Invoker, List<Map<String, Integer>>> entry : allocation.entrySet()) {
             Invoker invoker = entry.getKey();
@@ -53,7 +93,14 @@ public class Controller {
         return results;
     }
 
-    // Metodo para invocaciones asincronas y multithreading
+    /**
+     * Realiza una invocación asincrónica de la acción especificada.
+     *
+     * @param actionName  Nombre de la acción a invocar.
+     * @param parameters  Parámetros requeridos para la acción.
+     * @return            Future representando el resultado pendiente de la invocación.
+     * @throws IllegalStateException Si no hay suficiente memoria para ejecutar la acción.
+     */
     public Future<Integer> invoke_async(String actionName, Map<String, Integer> parameters) {
         int memoryRequired = actionMemory.getOrDefault(actionName, 0);
 
@@ -64,8 +111,9 @@ public class Controller {
         }
         throw new IllegalStateException("No hay suficiente memoria para ejecutar la acción de manera asíncrona");
     }
+
+
+
+
+
 }
-
-    // Otros métodos según se necesite
-
-

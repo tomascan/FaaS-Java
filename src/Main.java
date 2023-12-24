@@ -57,7 +57,7 @@ public class Main {
         //Policy Managment en grupos de acciones
         List<Map<String, Integer>> actions = new ArrayList<>();
         List<Map<String, Integer>> actions1 = new ArrayList<>();
-        for(int i = 0; i <39; i++){
+        for(int i = 0; i <11; i++){
             actions.add(Map.of("x", i, "y", i+1));
             //actions1.add(Map.of("x", i, "y", i+1));
         }
