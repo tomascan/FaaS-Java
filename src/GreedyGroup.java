@@ -9,22 +9,17 @@ public class GreedyGroup implements Policy {
         int invokerIndex = 0;
 
         for (Map<String, Integer> action : actions) {
-            if (invokerIndex >= invokers.size()) {
-                throw new IllegalStateException("No hay suficientes Invokers con memoria disponible");
-            }
-
             Invoker currentInvoker = invokers.get(invokerIndex);
-            if (!currentInvoker.hasEnoughMemory(memoryPerAction)) {
-                invokerIndex++; // Avanzar al siguiente Invoker
-                if (invokerIndex < invokers.size()) {
-                    currentInvoker = invokers.get(invokerIndex);
-                } else {
-                    continue;
+            while (!currentInvoker.hasEnoughMemory(memoryPerAction)) {
+                invokerIndex++;
+                if (invokerIndex >= invokers.size()) {
+                    throw new IllegalStateException("No hay suficientes Invokers con memoria disponible");
                 }
+                currentInvoker = invokers.get(invokerIndex);
             }
 
             allocation.computeIfAbsent(currentInvoker, k -> new ArrayList<>()).add(action);
-            currentInvoker.reserveMemory(memoryPerAction); // Asumiendo que este método ajusta la memoria disponible
+            currentInvoker.reserveMemory(memoryPerAction);
         }
 
         // Liberar la memoria reservada en los Invokers al final
