@@ -41,17 +41,8 @@ public class Invoker {
 
 
     public int executeAction(Function<Map<String, Integer>, Integer> action, Map<String, Integer> parameters, int memoryRequired) {
-        if (hasEnoughMemory(memoryRequired)) {
-            reserveMemory(memoryRequired); // Reservar la memoria necesaria
             actionCount++; //Al reservar memoria para una accion se suma tambien la accion a la cuenta del Invoker
-            try {
                 return action.apply(parameters);
-            } finally {
-                releaseMemory(memoryRequired); // Liberar la memoria después de la acción
-            }
-        } else {
-            throw new IllegalStateException("No hay suficiente memoria para ejecutar la acción");
-        }
     }
 
 

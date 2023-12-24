@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 public class RoundRobin implements Policy {
     @Override
     public Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction) {
@@ -11,6 +10,10 @@ public class RoundRobin implements Policy {
 
         for (Map<String, Integer> action : actions) {
             Invoker currentInvoker = invokers.get(invokerIndex);
+            if (!currentInvoker.hasEnoughMemory(memoryPerAction)) {
+                throw new IllegalStateException("Uno de los Invokers no tiene suficiente memoria");
+            }
+            currentInvoker.reserveMemory(memoryPerAction);
             allocation.computeIfAbsent(currentInvoker, k -> new ArrayList<>()).add(action);
 
             invokerIndex = (invokerIndex + 1) % invokers.size();
@@ -19,3 +22,4 @@ public class RoundRobin implements Policy {
         return allocation;
     }
 }
+

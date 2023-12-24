@@ -37,24 +37,19 @@ public class Controller {
         if (policy == null) {
             throw new IllegalStateException("Política no establecida");
         }// La política distribuye las acciones y retorna la asignación
+
         Map<Invoker, List<Map<String, Integer>>> allocation = policy.distributeActions(parameters, Arrays.asList(invokers), actionMemory.getOrDefault(actionName, 0));
 
-        // Verifica la memoria y ejecuta las acciones
-
+        // Ejecuta las acciones
         for (Map.Entry<Invoker, List<Map<String, Integer>>> entry : allocation.entrySet()) {
             Invoker invoker = entry.getKey();
             List<Map<String, Integer>> invokerActions = entry.getValue();
             int requiredMemory = invokerActions.size() * actionMemory.getOrDefault(actionName, 0);
 
-            if (!invoker.hasEnoughMemory(requiredMemory)) {
-                throw new IllegalStateException("Uno de los Invokers no tiene suficiente memoria");
-            }
-
             for (Map<String, Integer> actionParams : invokerActions) {
                 results.add(invoker.executeAction(actions.get(actionName), actionParams, requiredMemory));
             }
         }
-
         return results;
     }
 

@@ -22,6 +22,14 @@ public class UniformGroup implements Policy {
                 invokerIndex = (invokerIndex + 1) % invokers.size();
             }
             Invoker currentInvoker = invokers.get(invokerIndex);
+            if (!currentInvoker.hasEnoughMemory(memoryPerAction)) {
+                invokerIndex = (invokerIndex + 1) % invokers.size();
+                currentInvoker = invokers.get(invokerIndex);
+                if (!currentInvoker.hasEnoughMemory(memoryPerAction)) {
+                    throw new IllegalStateException("Uno de los Invokers no tiene suficiente memoria");
+                }
+            }
+            currentInvoker.reserveMemory(memoryPerAction);
             allocation.computeIfAbsent(currentInvoker, k -> new ArrayList<>()).add(action);
             currentCount++;
         }
