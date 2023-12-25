@@ -1,20 +1,22 @@
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Clase Controller que gestiona la invocación de acciones utilizando múltiples invocadores.
  * Permite la registración y ejecución de acciones, tanto de manera sincrónica como asincrónica,
  * y administra la distribución de las acciones entre los invocadores según una política definida.
  */
-public class Controller {
+public class Controller implements Observer {
     final Invoker[] invokers; //Lista de Invokers
     private Policy policy; //Policy Manager
 
     // Mapa que asocia nombres de acción con sus respectivas funciones.
     private Map<String, Function<Map<String, Integer>, Integer>> actions = new HashMap<>();
-    private Map<String, Integer> actionMemory = new HashMap<>(); // Mapa almacena la memoria requerida para cada acción.
+    private final Map<String, Integer> actionMemory = new HashMap<>(); // Mapa almacena la memoria requerida para cada acción.
 
+    private final List<Metric> metrics = new ArrayList<>();
 
     /**
      * Constructor de Controller.
@@ -113,7 +115,43 @@ public class Controller {
     }
 
 
+    //--------------------------------------------------OBSERVER------------------------------------------
 
+    @Override
+    public void updateMetrics(Metric metric) {
+        metrics.add(metric);
+    }
 
+    public void analyzeMetrics() {
+        double avgTime = metrics.stream()
+                .mapToDouble(Metric::getExecutionTime)
+                .average()
+                .orElse(0.0);
 
+        long maxTime = metrics.stream()
+                .mapToLong(Metric::getExecutionTime)
+                .max()
+                .orElse(0L);
+
+        long minTime = metrics.stream()
+                .mapToLong(Metric::getExecutionTime)
+                .min()
+                .orElse(0L);
+
+        long totalExecutionTime = metrics.stream()
+                .mapToLong(Metric::getExecutionTime)
+                .sum();
+
+        Map<String, Double> avgMemoryUsagePerInvoker = metrics.stream()
+                .collect(Collectors.groupingBy(Metric::getInvokerId,
+                        Collectors.averagingInt(Metric::getMemoryUsed)));
+
+        // Aquí puedes agregar más cálculos según sea necesario
+    }
+
+    public void registerObserver() {
+        for (Invoker invoker : invokers) {
+            invoker.addObserver(this);
+        }
+    }
 }

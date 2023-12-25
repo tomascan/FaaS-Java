@@ -1,0 +1,2 @@
+dormir time=3000
+dormir time=1000

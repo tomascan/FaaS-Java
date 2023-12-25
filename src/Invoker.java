@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,6 +17,7 @@ public class Invoker {
     private final AtomicInteger memory; //Memoria del Invoker controlada de manera atómica para multithreading
     private int actionCount = 0; //Cantidad de acciones ejecutadas
 
+    private List<Observer> observers = new ArrayList<>();
     /**
      * Constructor de Invoker.
      * Inicializa el Invoker con una cantidad específica de memoria y un servicio de ejecución.
@@ -123,6 +126,17 @@ public class Invoker {
         });
     }
 
+
+
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    public void notifyObservers(Metric metric) {
+        for (Observer observer : observers) {
+            observer.updateMetrics(metric);
+        }
+    }
 
 
 }
