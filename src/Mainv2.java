@@ -1,18 +1,15 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Mainv2 {
 
     public static void main(String[] args) throws Exception {
-        Controller controller = new Controller(4, 100);
-        controller.setPolicy(new RoundRobin());
+        Controller controller = new Controller(4, 1000);
+        controller.setPolicy(new UniformGroup(3));
         controller.registerObserver();
 
         // Registro de acciones
@@ -34,6 +31,7 @@ public class Mainv2 {
         controller.analyzeMetrics();
     }
 
+
     private static void processFiles(Controller controller, int currentFile, int totalFiles) throws IOException {
         if (currentFile >= totalFiles) {
             return; // Caso base: Todos los archivos han sido procesados
@@ -41,35 +39,50 @@ public class Mainv2 {
 
         String filePath = "/home/tomor0/Escritorio/Universidad/TAP/P1/FaaS-TAP-master/Ficheros/Ex" + currentFile + ".txt";
         List<String> fileContents = readFiles(filePath);
+
+        List<Map<String, Object>> allActions = new ArrayList<>();
         for (String content : fileContents) {
-            splitActions(content, controller);
-        }
-
-        processFiles(controller, currentFile + 1, totalFiles); // Llamada recursiva para el siguiente archivo
-    }
-
-    private static void splitActions(String content, Controller controller) {
-        System.out.println("Contenido leído: " + content);
-
-        // Procesamiento de la línea como antes
-        String[] parts = content.split("\\s+", 2);
-        String actionName = parts[0];
-        System.out.println("Nombre de la acción: " + actionName);
-
-        Map<String, Integer> params = new HashMap<>();
-        if (parts.length > 1) {
-            String[] keyValuePairs = parts[1].split("\\s+");
-            for (String pair : keyValuePairs) {
-                String[] keyValue = pair.split("=");
-                if (keyValue.length == 2) {
-                    params.put(keyValue[0].trim(), Integer.parseInt(keyValue[1].trim()));
-                }
+            Map<String, Object> actionData = splitActions(content);
+            if (actionData != null) {
+                allActions.add(actionData);
             }
         }
 
-        List<Integer> result = controller.invoke(actionName, Arrays.asList(params));
-        System.out.println("Resultado de la acción '" + actionName + "': " + result);
+        controller.invokeFile(allActions);
+
+        processFiles(controller, currentFile + 1, totalFiles);
     }
+
+
+    private static Map<String, Object> splitActions(String content) {
+        // Comprobar si la línea está vacía o solo contiene espacios en blanco
+        if (content == null || content.trim().isEmpty()) {
+            return null;
+        }
+
+        String[] parts = content.split("\\s+", 2);
+        // Comprobar si hay suficientes partes para una acción y parámetros
+        if (parts.length < 2) {
+            return null;
+        }
+
+        String actionName = parts[0];
+        Map<String, Integer> params = new HashMap<>();
+        String[] keyValuePairs = parts[1].split("\\s+");
+        for (String pair : keyValuePairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2) {
+                params.put(keyValue[0].trim(), Integer.parseInt(keyValue[1].trim()));
+            }
+        }
+
+        Map<String, Object> actionData = new HashMap<>();
+        actionData.put("actionName", actionName);
+        actionData.put("parameters", params);
+
+        return actionData;
+    }
+
 
     private static List<String> readFiles(String path) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(path))) {

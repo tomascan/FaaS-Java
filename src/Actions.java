@@ -12,6 +12,6 @@ public class Actions {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return 0; // El resultado de 'dormir' podría ser siempre 0, ya que su propósito es solo esperar
+        return params.get("time"); // El resultado de 'dormir' podría ser siempre 0, ya que su propósito es solo esperar
     };
 }

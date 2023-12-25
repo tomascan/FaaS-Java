@@ -115,6 +115,42 @@ public class Controller implements Observer {
     }
 
 
+    public void invokeFile(List<Map<String, Object>> actionDataList) {
+        if (policy == null) {
+            throw new IllegalStateException("Política no establecida");
+        }
+
+        // Agrupar acciones por nombre
+        Map<String, List<Map<String, Integer>>> groupedActions = new HashMap<>();
+        for (Map<String, Object> actionData : actionDataList) {
+            String actionName = (String) actionData.get("actionName");
+            Map<String, Integer> parameters = (Map<String, Integer>) actionData.get("parameters");
+            groupedActions.computeIfAbsent(actionName, k -> new ArrayList<>()).add(parameters);
+        }
+
+        // Imprimir las acciones agrupadas
+        System.out.println("Acciones agrupadas por nombre:");
+        for (String actionName : groupedActions.keySet()) {
+            System.out.println("Nombre de la acción: " + actionName + ", Cantidad de acciones: " + groupedActions.get(actionName).size());
+        }
+
+        // Invocar acciones agrupadas
+        for (Map.Entry<String, List<Map<String, Integer>>> entry : groupedActions.entrySet()) {
+            String actionName = entry.getKey();
+            List<Map<String, Integer>> paramsList = entry.getValue();
+
+            System.out.println("Invocando acciones para: " + actionName);
+
+            // Ejecutar acciones agrupadas aplicando la política
+            List<Integer> results = invoke(actionName, paramsList);
+            // Imprimir resultados de la invocación
+            System.out.println("Resultados de la acción '" + actionName + "': " + results);
+        }
+    }
+
+
+
+
     //--------------------------------------------------OBSERVER------------------------------------------
 
     @Override
