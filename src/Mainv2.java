@@ -9,7 +9,7 @@ public class Mainv2 {
 
     public static void main(String[] args) throws Exception {
         Controller controller = new Controller(4, 1000);
-        controller.setPolicy(new UniformGroup(3));
+        controller.setPolicy(new RoundRobin());
         controller.registerObserver();
 
         // Registro de acciones
@@ -17,10 +17,13 @@ public class Mainv2 {
         controller.registerAction("restar", Actions.restar, 5);
         controller.registerAction("multiplicar", Actions.multiplicar, 5);
         controller.registerAction("dividir", Actions.dividir, 5);
-        controller.registerAction("dormir", Actions.dormir, 10);
+        controller.registerAction("dormir", Actions.dormir, 5);
+
 
         // Procesar una serie de archivos
-        processFiles(controller, 1, 10);
+        List<Map<String, Object>> allActions = new ArrayList<>();
+        processFiles(allActions, 1, 10);
+        controller.invokeFile(allActions);
 
         //Mostrar el contador de acciones realizadas por cada Invoker
         for(int i = 0; i < controller.invokers.length; i++){
@@ -32,15 +35,13 @@ public class Mainv2 {
     }
 
 
-    private static void processFiles(Controller controller, int currentFile, int totalFiles) throws IOException {
-        if (currentFile >= totalFiles) {
+    private static void processFiles(List<Map<String, Object>> allActions, int currentFile, int totalFiles) throws IOException {
+        if (currentFile > totalFiles) {
             return; // Caso base: Todos los archivos han sido procesados
         }
 
         String filePath = "/home/tomor0/Escritorio/Universidad/TAP/P1/FaaS-TAP-master/Ficheros/Ex" + currentFile + ".txt";
         List<String> fileContents = readFiles(filePath);
-
-        List<Map<String, Object>> allActions = new ArrayList<>();
         for (String content : fileContents) {
             Map<String, Object> actionData = splitActions(content);
             if (actionData != null) {
@@ -48,10 +49,10 @@ public class Mainv2 {
             }
         }
 
-        controller.invokeFile(allActions);
-
-        processFiles(controller, currentFile + 1, totalFiles);
+        processFiles(allActions, currentFile + 1, totalFiles);
     }
+
+
 
 
     private static Map<String, Object> splitActions(String content) {
