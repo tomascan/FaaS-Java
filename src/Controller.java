@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
  * Permite la registración y ejecución de acciones, tanto de manera sincrónica como asincrónica,
  * y administra la distribución de las acciones entre los invocadores según una política definida.
  */
-public class Controller implements Observer {
+public class Controller implements Observer{
     final Invoker[] invokers; //Lista de Invokers
     private Policy policy; //Policy Manager
 
@@ -16,6 +16,9 @@ public class Controller implements Observer {
     private Map<String, Function<Map<String, Integer>, Integer>> actions = new HashMap<>();
     private final Map<String, Integer> actionMemory = new HashMap<>(); // Mapa almacena la memoria requerida para cada acción.
 
+
+
+    private final List<Observer> observers = new ArrayList<>();
     private final List<Metric> metrics = new ArrayList<>();
 
     /**
@@ -28,7 +31,7 @@ public class Controller implements Observer {
     public Controller(int numberOfInvokers, int invokerMemory) {
         this.invokers = new Invoker[numberOfInvokers];
         for (int i = 0; i < numberOfInvokers; i++) {
-            invokers[i] = new Invoker(invokerMemory);
+            invokers[i] = new Invoker(i, invokerMemory);
         }
     }
 
@@ -152,12 +155,13 @@ public class Controller implements Observer {
 
 
     //--------------------------------------------------OBSERVER------------------------------------------
-
     @Override
     public void updateMetrics(Metric metric) {
         metrics.add(metric);
+        System.out.println("Metric received: " + metric);
     }
 
+    //Segunda parte del Observer-----------------------------------------------------------
     public void analyzeMetrics() {
         double avgTime = metrics.stream()
                 .mapToDouble(Metric::getExecutionTime)
@@ -178,16 +182,15 @@ public class Controller implements Observer {
                 .mapToLong(Metric::getExecutionTime)
                 .sum();
 
-        Map<String, Double> avgMemoryUsagePerInvoker = metrics.stream()
-                .collect(Collectors.groupingBy(Metric::getInvokerId,
+        Map<Integer, Double> avgMemoryUsagePerInvoker = metrics.stream()
+                .collect(Collectors.groupingBy(Metric::getId,
                         Collectors.averagingInt(Metric::getMemoryUsed)));
 
         // Aquí puedes agregar más cálculos según sea necesario
     }
 
-    public void registerObserver() {
-        for (Invoker invoker : invokers) {
-            invoker.addObserver(this);
-        }
+
+    public Invoker[] getInvokers() {
+        return invokers;
     }
 }

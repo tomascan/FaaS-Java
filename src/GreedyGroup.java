@@ -21,12 +21,7 @@ public class GreedyGroup implements Policy {
             allocation.computeIfAbsent(currentInvoker, k -> new ArrayList<>()).add(action);
             currentInvoker.reserveMemory(memoryPerAction);
         }
-
-        // Liberar la memoria reservada en los Invokers al final
-        for (Invoker invoker : allocation.keySet()) {
-            invoker.releaseMemory(memoryPerAction * allocation.get(invoker).size());
-        }
-
+        
         return allocation;
     }
 }

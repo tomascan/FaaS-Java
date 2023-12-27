@@ -13,22 +13,27 @@ import java.util.function.Function;
  * gestionando la memoria requerida para cada acción y manteniendo un contador de acciones ejecutadas.
  */
 public class Invoker {
+    private final int id;
     private final ExecutorService executor; //Ejecutor para manejar aciones asincronas
     private final AtomicInteger memory; //Memoria del Invoker controlada de manera atómica para multithreading
     private int actionCount = 0; //Cantidad de acciones ejecutadas
 
+    private Controller controller;
     private List<Observer> observers = new ArrayList<>();
     /**
      * Constructor de Invoker.
      * Inicializa el Invoker con una cantidad específica de memoria y un servicio de ejecución.
      *
+     * @param id   Número de identidad del Invoker creado
      * @param mem Cantidad inicial de memoria disponible.
      */
-    public Invoker(int mem) {
+    public Invoker(int id, int mem) {
+        this.id = id;
         this.memory = new AtomicInteger(mem);
         this.executor = Executors.newCachedThreadPool();
     }
 
+    public int getId() { return id; }
 
     /**
      * Obtiene la cantidad actual de memoria disponible en el Invoker.
@@ -97,8 +102,23 @@ public class Invoker {
      * @return                Resultado de la acción ejecutada.
      */
     public int executeAction(Function<Map<String, Integer>, Integer> action, Map<String, Integer> parameters, int memoryRequired) {
-            actionCount++; //Al reservar memoria para una accion se suma tambien la accion a la cuenta del Invoker
-                return action.apply(parameters);
+        long startTime = System.currentTimeMillis(); // Start time
+        reserveMemory(memoryRequired); // Reserve memory for the action
+        int result = 0;
+
+        try {
+            result = action.apply(parameters);
+        } finally {
+            releaseMemory(memoryRequired); // Release memory after action
+            long endTime = System.currentTimeMillis(); // End time
+            long executionTime = endTime - startTime; // Calculate execution time
+
+            Metric metric = new Metric(this.id, executionTime, memoryRequired);
+            notifyObservers(metric); // Notify the Controller
+        }
+
+        actionCount++; // Increase action count
+        return result;
     }
 
 
@@ -128,15 +148,18 @@ public class Invoker {
 
 
 
-    public void addObserver(Observer observer) {
+    //OBSERVER -------------------------------------------------------
+
+    public void registerObserver(Observer observer) {
         observers.add(observer);
     }
-
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
     public void notifyObservers(Metric metric) {
         for (Observer observer : observers) {
             observer.updateMetrics(metric);
         }
     }
-
 
 }

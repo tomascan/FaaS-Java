@@ -8,9 +8,8 @@ import java.util.stream.Stream;
 public class Mainv2 {
 
     public static void main(String[] args) throws Exception {
-        Controller controller = new Controller(4, 1000);
-        controller.setPolicy(new RoundRobin());
-        controller.registerObserver();
+        Controller controller = new Controller(8, 100);
+        controller.setPolicy(new BigGroup(5));
 
         // Registro de acciones
         controller.registerAction("sumar", Actions.sumar, 5);

@@ -1,18 +1,34 @@
 public class Metric {
-    private String invokerId;
+    private int id;
     private long executionTime;
     private int memoryUsed;
-    // Constructor y métodos getters y setters
+
+
+    public Metric(int id, long executionTime, int memoryUsed) {
+        this.id = id;
+        this.executionTime = executionTime;
+        this.memoryUsed = memoryUsed;
+    }
 
     public long getExecutionTime() {
         return executionTime;
     }
 
-    public String getInvokerId() {
-        return invokerId;
+    public int getId() {
+        return id;
     }
 
     public int getMemoryUsed() {
         return memoryUsed;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Metric{" +
+                "invokerId='" + id + '\'' +
+                ", executionTime=" + executionTime +
+                ", memoryUsed=" + memoryUsed +
+                '}';
     }
 }

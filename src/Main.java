@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        Controller controller = new Controller(4,1024);
-        controller.setPolicy(new GreedyGroup());
+        Controller controller = new Controller(4,2024);
+        controller.setPolicy(new RoundRobin());
 
         // Registro de acciones
         controller.registerAction("sumar", Actions.sumar, 100);
@@ -57,7 +57,7 @@ public class Main {
         //Policy Managment en grupos de acciones
         List<Map<String, Integer>> actions = new ArrayList<>();
         List<Map<String, Integer>> actions1 = new ArrayList<>();
-        for(int i = 0; i <39; i++){
+        for(int i = 0; i <18; i++){
             actions.add(Map.of("x", i, "y", i+1));
             //actions1.add(Map.of("x", i, "y", i+1));
         }
@@ -68,8 +68,7 @@ public class Main {
 
         //Mostrar el contador de acciones realizadas por cada Invoker
         for(int i = 0; i < controller.invokers.length; i++){
-            System.out.println("Invoker " + (i + 1) + " realizó " + controller.invokers[i].getActionCount() + " acciones.");
+            System.out.println("Invoker " +controller.invokers[i].getId()+ " realizó " + controller.invokers[i].getActionCount() + " acciones.");
         }
     }
-
 }
