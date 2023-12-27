@@ -90,6 +90,7 @@ public class Controller implements Observer{
             Invoker invoker = entry.getKey();
             List<Map<String, Integer>> invokerActions = entry.getValue();
             int requiredMemory = invokerActions.size() * actionMemory.getOrDefault(actionName, 0);
+            System.out.println("RequiredMemory: " + requiredMemory);
 
             for (Map<String, Integer> actionParams : invokerActions) {
                 results.add(invoker.executeAction(actions.get(actionName), actionParams, requiredMemory));

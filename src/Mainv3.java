@@ -20,14 +20,14 @@ public class Mainv3 {
         controller.registerAction("restar", Actions.restar, 256);
         controller.registerAction("multiplicar", Actions.multiplicar, 100);
         controller.registerAction("dividir", Actions.dividir, 256);
-        controller.registerAction("dormir", Actions.dormir, 256);
+        controller.registerAction("dormir", Actions.dormir, 100);
 
         // Execute group actions
         List<Map<String, Integer>> actions = new ArrayList<>();
-        for (int i = 0; i < 18; i++) {
-            actions.add(Map.of("x", i, "y", i + 1));
+        for (int i = 0; i < 35; i++) {
+            actions.add(Map.of("time", i*10));
         }
-        controller.invoke("sumar", actions);
+        controller.invoke("dormir", actions);
 
         // Print action counts for each Invoker
         for (Invoker invoker : controller.getInvokers()) {
