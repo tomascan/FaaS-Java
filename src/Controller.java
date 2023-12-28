@@ -59,6 +59,10 @@ public class Controller implements Observer{
     }
 
 
+    public Invoker[] getInvokers() {
+        return invokers;
+    }
+
 
     /**
      * Realiza una sobrecarga para una acción individual.
@@ -191,7 +195,31 @@ public class Controller implements Observer{
     }
 
 
-    public Invoker[] getInvokers() {
-        return invokers;
+
+
+// DECORATOR --------------------------------------------
+    private Map<String, Map<Map<String, Integer>, Integer>> cache = new HashMap<>();
+
+    public Integer getCachedResult(String actionName, Map<String, Integer> parameters) {
+        return cache.getOrDefault(actionName, new HashMap<>()).get(parameters);
     }
+
+    public void cacheResult(String actionName, Map<String, Integer> parameters, Integer result) {
+        cache.computeIfAbsent(actionName, k -> new HashMap<>()).put(parameters, result);
+    }
+
+
+    public void printCache() {
+        System.out.println("Contenido de la caché:");
+        cache.forEach((actionName, cacheMap) -> {
+            System.out.println("Acción: " + actionName);
+            cacheMap.forEach((params, result) -> {
+                System.out.println(" Parámetros: " + params + " -> Resultado: " + result);
+            });
+        });
+    }
+
+
+    // ... resto de la clase ...
 }
+

@@ -25,10 +25,12 @@ public class Metric {
 
     @Override
     public String toString() {
+        double executionTimeSeconds = executionTime / 1000.0; // Convierte milisegundos a segundos
         return "Metric{" +
                 "invokerId='" + id + '\'' +
-                ", executionTime=" + executionTime +
+                ", executionTime=" + String.format("%.6f", executionTimeSeconds) +
                 ", memoryUsed=" + memoryUsed +
                 '}';
     }
+
 }
