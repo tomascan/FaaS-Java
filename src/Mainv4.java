@@ -73,9 +73,9 @@ public class Mainv4 {
 
 
         // Realizar algunas invocaciones
-        Map<String, Integer> factorialParams = Map.of("number", 10);
+        Map<String, Integer> factorialParams = Map.of("number", 25);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             int resultado = controller.invoke("factorialAmbos", factorialParams);
             System.out.println("Resultado del factorial (Invocación " + (i + 1) + "): " + resultado);
         }
