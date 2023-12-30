@@ -74,10 +74,16 @@ public class Mainv4 {
 
         // Realizar algunas invocaciones
         Map<String, Integer> factorialParams = Map.of("number", 10);
-        controller.invoke("factorialConCronometro", factorialParams); // Solo cronometraje
-        controller.invoke("factorialMemoized", factorialParams); // Solo memoización
-        controller.invoke("factorialAmbos", factorialParams); // Ambos
 
+        for (int i = 0; i < 5; i++) {
+            int resultado = controller.invoke("factorialAmbos", factorialParams);
+            System.out.println("Resultado del factorial (Invocación " + (i + 1) + "): " + resultado);
+        }
+//
+//        controller.invoke("factorialConCronometro", factorialParams); // Solo cronometraje
+//        controller.invoke("factorialMemoized", factorialParams); // Solo memoización
+//        controller.invoke("factorialAmbos", factorialParams); // Ambos
+//
 
         controller.printCache();
     }
