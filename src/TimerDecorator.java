@@ -1,7 +1,7 @@
 import java.util.Map;
 import java.util.function.Function;
 public class TimerDecorator implements Decorator {
-    private Function<Map<String, Integer>, Integer> function;
+    private final Function<Map<String, Integer>, Integer> function;
 
     public TimerDecorator(Function<Map<String, Integer>, Integer> function) {
         this.function = function;

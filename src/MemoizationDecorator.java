@@ -3,8 +3,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class MemoizationDecorator implements Decorator {
-    private Function<Map<String, Integer>, Integer> function;
-    private Controller controller;
+    private final Function<Map<String, Integer>, Integer> function;
+    private final Controller controller;
 
     public MemoizationDecorator(Function<Map<String, Integer>, Integer> function, Controller controller) {
         this.function = function;

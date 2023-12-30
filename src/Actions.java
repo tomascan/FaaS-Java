@@ -14,4 +14,13 @@ public class Actions {
         }
         return params.get("time"); // El resultado de 'dormir' podría ser siempre 0, ya que su propósito es solo esperar
     };
+
+    public static Function<Map<String, Integer>, Integer> factorial = params -> {
+        int n = params.get("number");
+        int result = 1;
+        for (int i = 1; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    };
 }
