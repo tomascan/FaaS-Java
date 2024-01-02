@@ -2,14 +2,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * Implementación de la política de distribución de acciones que agrupa varias acciones para su ejecución.
+ * Esta política intenta agrupar un número específico de acciones y asignarlas a un invocador que tenga suficiente memoria.
+ */
 public class BigGroup implements Policy {
     private int groupSize;
 
+    /**
+     * Constructor para BigGroup.
+     *
+     * @param groupSize El tamaño del grupo de acciones a agrupar para cada invocador.
+     */
     public BigGroup(int groupSize) {
         this.groupSize = groupSize;
     }
 
+    /**
+     * Distribuye las acciones entre los invocadores disponibles, agrupándolas según el tamaño de grupo definido.
+     * Si un invocador no tiene suficiente memoria, intenta con grupos más pequeños.
+     *
+     * @param actions         Lista de acciones a distribuir.
+     * @param invokers        Lista de invocadores disponibles.
+     * @param memoryPerAction Memoria requerida por cada acción.
+     * @return                Mapa que asocia cada invocador con una lista de acciones.
+     * @throws IllegalStateException Si no se pueden asignar todas las acciones debido a la falta de memoria.
+     */
     @Override
     public Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction) {
         Map<Invoker, List<Map<String, Integer>>> allocation = new HashMap<>();

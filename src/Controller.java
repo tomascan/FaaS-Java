@@ -16,9 +16,6 @@ public class Controller implements Observer{
     private Map<String, Function<Map<String, Integer>, Integer>> actions = new HashMap<>();
     private final Map<String, Integer> actionMemory = new HashMap<>(); // Mapa almacena la memoria requerida para cada acción.
 
-
-
-    private final List<Observer> observers = new ArrayList<>();
     private final List<Metric> metrics = new ArrayList<>();
 
     /**
@@ -160,13 +157,24 @@ public class Controller implements Observer{
 
 
     //--------------------------------------------------OBSERVER------------------------------------------
+
+    /**
+     * Actualiza las métricas del sistema cada vez que un invocador completa una acción.
+     * Este método es llamado automáticamente por los invocadores.
+     *
+     * @param metric La métrica generada por el invocador después de ejecutar una acción.
+     */
     @Override
     public void updateMetrics(Metric metric) {
         metrics.add(metric);
         System.out.println("Metric received: " + metric);
     }
 
-    //Segunda parte del Observer-----------------------------------------------------------
+
+    /**
+     * Analiza y muestra estadísticas basadas en las métricas recogidas, como el tiempo promedio,
+     * máximo y mínimo de ejecución, y el uso promedio de memoria por invocador.
+     */
     public void analyzeMetrics() {
         double avgTime = metrics.stream()
                 .mapToDouble(Metric::getExecutionTime)
@@ -200,15 +208,32 @@ public class Controller implements Observer{
 // DECORATOR --------------------------------------------
     private Map<String, Map<Map<String, Integer>, Integer>> cache = new HashMap<>();
 
+    /**
+     * Obtiene un resultado previamente almacenado en la caché, si está disponible.
+     *
+     * @param actionName Nombre de la acción.
+     * @param parameters Parámetros de la acción.
+     * @return El resultado almacenado en caché, o null si no está disponible.
+     */
     public Integer getCachedResult(String actionName, Map<String, Integer> parameters) {
         return cache.getOrDefault(actionName, new HashMap<>()).get(parameters);
     }
 
+    /**
+     * Almacena un resultado en la caché para su uso futuro.
+     *
+     * @param actionName Nombre de la acción.
+     * @param parameters Parámetros de la acción.
+     * @param result     El resultado de la acción.
+     */
     public void cacheResult(String actionName, Map<String, Integer> parameters, Integer result) {
         cache.computeIfAbsent(actionName, k -> new HashMap<>()).put(parameters, result);
     }
 
 
+    /**
+     * Imprime el contenido actual de la caché, mostrando las acciones, sus parámetros y resultados.
+     */
     public void printCache() {
         System.out.println("Contenido de la caché:");
         cache.forEach((actionName, cacheMap) -> {

@@ -155,15 +155,29 @@ public class Invoker {
 
 
     //OBSERVER -------------------------------------------------------
-
+    /**
+     * Registra un observador para recibir actualizaciones sobre métricas.
+     *
+     * @param observer El observador a registrar.
+     */
     public void registerObserver(Observer observer) {
         observers.add(observer);
     }
 
+    /**
+     * Elimina un observador de la lista de observadores registrados.
+     *
+     * @param observer El observador a eliminar.
+     */
     public void removeObserver(Observer observer) {
         observers.remove(observer);
     }
 
+    /**
+     * Notifica a todos los observadores registrados con la métrica proporcionada.
+     *
+     * @param metric La métrica a enviar a los observadores.
+     */
     public void notifyObservers(Metric metric) {
         for (Observer observer : observers) {
             observer.updateMetrics(metric);
@@ -171,14 +185,6 @@ public class Invoker {
     }
 
 
-// DECORATOR ---------------------------------------------------------------
-
-    public Integer getCachedResult(String actionName, Map<String, Integer> parameters) {
-        return cache.getOrDefault(actionName, new HashMap<>()).get(parameters);
-    }
-
-    public void cacheResult(String actionName, Map<String, Integer> parameters, Integer result) {
-        cache.computeIfAbsent(actionName, k -> new HashMap<>()).put(parameters, result);
-    }
+// DECORATOR - Implementado en el Controller ---------------------------------------------------------------
 
 }
