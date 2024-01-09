@@ -1,6 +1,9 @@
+package FaaS;
+
 import java.util.Map;
 
 public interface IActions {
+
     Integer sumar(Map<String, Integer> params);
     Integer restar(Map<String, Integer> params);
     Integer multiplicar(Map<String, Integer> params);

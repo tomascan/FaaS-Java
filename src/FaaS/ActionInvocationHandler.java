@@ -1,3 +1,5 @@
+package FaaS;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -11,7 +13,7 @@ public class ActionInvocationHandler implements InvocationHandler {
     private final Controller controller;
 
     /**
-     * Constructor de ActionInvocationHandler.
+     * Constructor de FaaS.ActionInvocationHandler.
      *
      * @param controller El controlador al cual redirigir las llamadas de método.
      */
@@ -35,7 +37,7 @@ public class ActionInvocationHandler implements InvocationHandler {
         String actionName = method.getName();
 
         // Asume que el primer argumento es un Map<String, Integer>
-        // Verifica si el método existe en Actions y lo invoca, de lo contrario devuelve null
+        // Verifica si el método existe en FaaS.Actions y lo invoca, de lo contrario devuelve null
         if (Actions.class.getDeclaredField(actionName) != null) {
             Function<Map<String, Integer>, Integer> action = (Function<Map<String, Integer>, Integer>) Actions.class.getDeclaredField(actionName).get(null);
             return controller.invoke(actionName, (Map<String, Integer>) args[0]);

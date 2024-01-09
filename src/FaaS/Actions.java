@@ -1,7 +1,10 @@
+package FaaS;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class Actions {
+public class Actions{
     public static Function<Map<String, Integer>, Integer> sumar = params -> params.get("x") + params.get("y");
     public static Function<Map<String, Integer>, Integer> restar = params -> params.get("x") - params.get("y");
     public static Function<Map<String, Integer>, Integer> multiplicar = params -> params.get("x") * params.get("y");
@@ -23,4 +26,19 @@ public class Actions {
         }
         return result;
     };
+
+    private Map<String, Integer> wordCount(String text) {
+        Map<String, Integer> wordCounts = new HashMap<>();
+        for (String word : text.split("\\s+")) {
+            wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
+        }
+        return wordCounts;
+    }
+
+    public static Function<Map<String, Integer>, Integer> countWords = (Map<String, Integer> input) -> {
+        String text = input.get("text").toString(); // Suponiendo que el texto se almacena como un entero que representa su hash
+        int wordCount = text.split("\\s+").length;
+        return wordCount; // Retorna el total de palabras
+    };
+
 }

@@ -1,10 +1,10 @@
+package FaaS;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.function.Function;
+
 public class Mainv3 {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         Controller controller = new Controller(4, 2024);
@@ -29,9 +29,9 @@ public class Mainv3 {
         }
         controller.invoke("dormir", actions);
 
-        // Print action counts for each Invoker
+        // Print action counts for each FaaS.Invoker
         for (Invoker invoker : controller.getInvokers()) {
-            System.out.println("Invoker " + invoker.getId() + " realizó " + invoker.getActionCount() + " acciones.");
+            System.out.println("FaaS.Invoker " + invoker.getId() + " realizó " + invoker.getActionCount() + " acciones.");
         }
 
         // Analyze and display metrics

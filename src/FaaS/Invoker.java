@@ -1,3 +1,5 @@
+package FaaS;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,26 +12,26 @@ import java.util.function.Function;
 
 
 /**
- * Clase Invoker que administra la ejecución de acciones, tanto sincrónicas como asincrónicas,
+ * Clase FaaS.Invoker que administra la ejecución de acciones, tanto sincrónicas como asincrónicas,
  * gestionando la memoria requerida para cada acción y manteniendo un contador de acciones ejecutadas.
  */
 public class Invoker {
     private final int id;
-    private final ExecutorService executor; //Ejecutor para manejar aciones asincronas
+    private final ExecutorService executor; //Ejecutor para manejar aciones asincronas (Thread Pool)
     private final AtomicInteger memory; //Memoria del Invoker controlada de manera atómica para multithreading
     private int actionCount = 0; //Cantidad de acciones ejecutadas
 
     private Controller controller;
-    private List<Observer> observers = new ArrayList<>(); //Lista de observers que apuntaran al controller
+    private final List<Observer> observers = new ArrayList<>(); //Lista de observers que apuntaran al controller
 
-    private Map<String, Map<Map<String, Integer>, Integer>> cache = new HashMap<>(); // cache para el Decorator
+    private final Map<String, Map<Map<String, Integer>, Integer>> cache = new HashMap<>(); // cache para el FaaS.Decorator
 
 
     /**
-     * Constructor de Invoker.
-     * Inicializa el Invoker con una cantidad específica de memoria y un servicio de ejecución.
+     * Constructor de FaaS.Invoker.
+     * Inicializa el FaaS.Invoker con una cantidad específica de memoria y un servicio de ejecución.
      *
-     * @param id  Número de identidad del Invoker creado
+     * @param id  Número de identidad del FaaS.Invoker creado
      * @param mem Cantidad inicial de memoria disponible.
      */
     public Invoker(int id, int mem) {
@@ -43,7 +45,7 @@ public class Invoker {
     }
 
     /**
-     * Obtiene la cantidad actual de memoria disponible en el Invoker.
+     * Obtiene la cantidad actual de memoria disponible en el FaaS.Invoker.
      *
      * @return Cantidad de memoria disponible.
      */
@@ -52,7 +54,7 @@ public class Invoker {
     }
 
     /**
-     * Obtiene el número de acciones ejecutadas por este Invoker.
+     * Obtiene el número de acciones ejecutadas por este FaaS.Invoker.
      *
      * @return Número de acciones ejecutadas.
      */
@@ -62,7 +64,7 @@ public class Invoker {
 
 
     /**
-     * Establece una nueva cantidad de memoria disponible en el Invoker.
+     * Establece una nueva cantidad de memoria disponible en el FaaS.Invoker.
      *
      * @param mem Nueva cantidad de memoria a establecer.
      */
@@ -71,7 +73,7 @@ public class Invoker {
     }
 
     /**
-     * Verifica si el Invoker tiene suficiente memoria disponible para una operación.
+     * Verifica si el FaaS.Invoker tiene suficiente memoria disponible para una operación.
      *
      * @param requiredMemory Cantidad de memoria requerida para la operación.
      * @return true si hay suficiente memoria disponible, false en caso contrario.
@@ -121,7 +123,7 @@ public class Invoker {
             long executionTime = endTime - startTime; // Calculate execution time
 
             Metric metric = new Metric(this.id, executionTime, memoryRequired);
-            notifyObservers(metric); // Notify the Controller
+            notifyObservers(metric); // Notify the FaaS.Controller
         }
 
         actionCount++; // Increase action count
@@ -130,7 +132,7 @@ public class Invoker {
 
 
     /**
-     * Ejecuta una acción de manera asincrónica.
+     * Ejecuta una acción de manera asincrona.
      *
      * @param action         Función que representa la acción a ejecutar.
      * @param parameters     Parámetros necesarios para la ejecución de la acción.
@@ -183,8 +185,4 @@ public class Invoker {
             observer.updateMetrics(metric);
         }
     }
-
-
-// DECORATOR - Implementado en el Controller ---------------------------------------------------------------
-
 }

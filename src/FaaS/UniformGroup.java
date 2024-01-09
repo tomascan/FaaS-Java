@@ -1,3 +1,5 @@
+package FaaS;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +13,7 @@ public class UniformGroup implements Policy {
     private final int groupSize;
 
     /**
-     * Constructor para UniformGroup.
+     * Constructor para FaaS.UniformGroup.
      *
      * @param groupSize El tamaño del grupo de acciones que se asignará uniformemente a cada invocador.
      */

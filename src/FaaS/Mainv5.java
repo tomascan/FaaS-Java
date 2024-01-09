@@ -1,3 +1,5 @@
+package FaaS;
+
 import java.lang.reflect.Proxy;
 import java.util.Map;
 
@@ -7,9 +9,9 @@ public class Mainv5 {
         controller.setPolicy(new RoundRobin());
 
         // Initialize and register Invokers
-        for (int i = 0; i < controller.getInvokers().length; i++) {
-            controller.getInvokers()[i].registerObserver(controller);
-        }
+//        for (int i = 0; i < controller.getInvokers().length; i++) {
+//            controller.getInvokers()[i].registerObserver(controller);
+//        }
 
         // Register actions
         controller.registerAction("sumar", Actions.sumar, 100);
@@ -35,6 +37,5 @@ public class Mainv5 {
         Integer resultadoFactorial = actionsProxy.factorial(paramsFactorial);
         System.out.println("Resultado del factorial: " + resultadoFactorial);
 
-        // ... Otras invocaciones ...
     }
 }

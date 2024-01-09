@@ -1,5 +1,5 @@
-import java.util.Arrays;
-import java.util.List;
+package FaaS;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -10,9 +10,9 @@ public class Mainv4 {
         controller.setPolicy(new RoundRobin());
 
         // Registra los observadores para los Invokers
-        for (int i = 0; i < controller.getInvokers().length; i++) {
-            controller.getInvokers()[i].registerObserver(controller);
-        }
+//        for (int i = 0; i < controller.getInvokers().length; i++) {
+//            controller.getInvokers()[i].registerObserver(controller);
+//        }
 
         // Registro de acciones
         controller.registerAction("sumar", Actions.sumar, 100);
@@ -45,18 +45,18 @@ public class Mainv4 {
 //        // Analiza y muestra métricas si es necesario
 //        controller.analyzeMetrics();
 //
-//        // Aplicar MemoizationDecorator a una acción, por ejemplo, 'sumar'
-//        Function<Map<String, Integer>, Integer> sumarMemoized = new MemoizationDecorator(Actions.sumar, controller);
-//        controller.registerAction("sumar", sumarMemoized, 100);
-//
-//        // Realizar invocaciones repetidas con los mismos parámetros para 'sumar'
-//        Map<String, Integer> sumParams = Map.of("x", 5, "y", 3);
-//        int sumResult1 = controller.invoke("sumar", sumParams);
-//        System.out.println("Resultado de sumar (1ª vez): " + sumResult1);
-//
-//        Map<String, Integer> sumParams1 = Map.of("x", 10, "y", 2);
-//        int sumResult2 = controller.invoke("sumar", sumParams1);
-//        System.out.println("Resultado de sumar (2ª vez, debería ser de caché): " + sumResult2);
+        // Aplicar MemoizationDecorator a una acción, por ejemplo, 'sumar'
+        Function<Map<String, Integer>, Integer> sumarMemoized = new MemoizationDecorator(Actions.sumar, controller);
+        controller.registerAction("sumar", sumarMemoized, 100);
+
+        // Realizar invocaciones repetidas con los mismos parámetros para 'sumar'
+        Map<String, Integer> sumParams = Map.of("x", 5, "y", 3);
+        int sumResult1 = controller.invoke("sumar", sumParams);
+        System.out.println("Resultado de sumar (1ª vez): " + sumResult1);
+
+        Map<String, Integer> sumParams1 = Map.of("x", 5, "y", 3);
+        int sumResult2 = controller.invoke("sumar", sumParams1);
+        System.out.println("Resultado de sumar (2ª vez, debería ser de caché): " + sumResult2);
 
         // Aplica solo el TimerDecorator
         Function<Map<String, Integer>, Integer> factorialConCronometro = new TimerDecorator(Actions.factorial);
@@ -70,20 +70,20 @@ public class Mainv4 {
         Function<Map<String, Integer>, Integer> factorialAmbos = new MemoizationDecorator(new TimerDecorator(Actions.factorial), controller);
         controller.registerAction("factorialAmbos", factorialAmbos, 100);
 
-
-
         // Realizar algunas invocaciones
-        Map<String, Integer> factorialParams = Map.of("number", 25);
+        Map<String, Integer> factorialParams = Map.of("number", 10);
+        int resultado = controller.invoke("factorialAmbos", factorialParams);
 
+        Map<String, Integer> factorialParams1 = Map.of("number", 25);
         for (int i = 0; i < 10; i++) {
-            int resultado = controller.invoke("factorialAmbos", factorialParams);
+            int resultado1 = controller.invoke("factorialAmbos", factorialParams1);
             System.out.println("Resultado del factorial (Invocación " + (i + 1) + "): " + resultado);
         }
-//
+
 //        controller.invoke("factorialConCronometro", factorialParams); // Solo cronometraje
 //        controller.invoke("factorialMemoized", factorialParams); // Solo memoización
 //        controller.invoke("factorialAmbos", factorialParams); // Ambos
-//
+
 
         controller.printCache();
     }

@@ -1,16 +1,18 @@
+package FaaS;
+
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Clase Controller que gestiona la invocación de acciones utilizando múltiples invocadores.
+ * Clase FaaS.Controller que gestiona la invocación de acciones utilizando múltiples invocadores.
  * Permite la registración y ejecución de acciones, tanto de manera sincrónica como asincrónica,
  * y administra la distribución de las acciones entre los invocadores según una política definida.
  */
 public class Controller implements Observer{
     final Invoker[] invokers; //Lista de Invokers
-    private Policy policy; //Policy Manager
+    private Policy policy; //FaaS.Policy Manager
 
     // Mapa que asocia nombres de acción con sus respectivas funciones.
     private Map<String, Function<Map<String, Integer>, Integer>> actions = new HashMap<>();
@@ -19,7 +21,7 @@ public class Controller implements Observer{
     private final List<Metric> metrics = new ArrayList<>();
 
     /**
-     * Constructor de Controller.
+     * Constructor de FaaS.Controller.
      * Inicializa un array de invocadores con la capacidad de memoria especificada.
      *
      * @param numberOfInvokers Número de invocadores a crear.
@@ -36,7 +38,7 @@ public class Controller implements Observer{
     /**
      * Establece la política de distribución de acciones.
      *
-     * @param policy Objeto Policy a establecer.
+     * @param policy Objeto FaaS.Policy a establecer.
      */
     public void setPolicy(Policy policy){
         this.policy = policy;
@@ -91,7 +93,6 @@ public class Controller implements Observer{
             Invoker invoker = entry.getKey();
             List<Map<String, Integer>> invokerActions = entry.getValue();
             int requiredMemory = invokerActions.size() * actionMemory.getOrDefault(actionName, 0);
-            System.out.println("RequiredMemory: " + requiredMemory);
 
             for (Map<String, Integer> actionParams : invokerActions) {
                 results.add(invoker.executeAction(actions.get(actionName), actionParams, requiredMemory));
@@ -244,7 +245,5 @@ public class Controller implements Observer{
         });
     }
 
-
-    // ... resto de la clase ...
 }
 

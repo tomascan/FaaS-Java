@@ -1,4 +1,5 @@
-import java.util.HashMap;
+package FaaS;
+
 import java.util.Map;
 import java.util.function.Function;
 /**
@@ -10,7 +11,7 @@ public class MemoizationDecorator implements Decorator {
     private final Controller controller;
 
     /**
-     * Constructor para MemoizationDecorator.
+     * Constructor para FaaS.MemoizationDecorator.
      *
      * @param function   La función a la cual se le añadirá la funcionalidad de memoización.
      * @param controller El controlador utilizado para almacenar y recuperar resultados memorizados.

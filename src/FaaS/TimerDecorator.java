@@ -1,3 +1,5 @@
+package FaaS;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -10,7 +12,7 @@ public class TimerDecorator implements Decorator {
 
 
     /**
-     * Constructor para TimerDecorator.
+     * Constructor para FaaS.TimerDecorator.
      *
      * @param function La función a la cual se le añadirá la funcionalidad de cronometraje.
      */

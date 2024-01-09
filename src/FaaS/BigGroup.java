@@ -1,3 +1,5 @@
+package FaaS;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +12,7 @@ public class BigGroup implements Policy {
     private int groupSize;
 
     /**
-     * Constructor para BigGroup.
+     * Constructor para FaaS.BigGroup.
      *
      * @param groupSize El tamaño del grupo de acciones a agrupar para cada invocador.
      */
@@ -50,7 +52,7 @@ public class BigGroup implements Policy {
             }
 
             if (!allocated) {
-                // Si ningún Invoker tiene suficiente memoria, se intenta con grupos más pequeños
+                // Si ningún FaaS.Invoker tiene suficiente memoria, se intenta con grupos más pequeños
                 if (groupSize > 1) {
                     groupSize--;
                 } else {
