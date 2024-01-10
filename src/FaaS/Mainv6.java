@@ -1,12 +1,13 @@
 package FaaS;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.IntStream;
 
 public class Mainv6 {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Controller controller = new Controller(10, 200);
         controller.setPolicy(new RoundRobin());
 
@@ -55,20 +56,17 @@ public class Mainv6 {
 
 
 
-    private static String readFile(String filePath) {
-        try {
+    private static String readFile(String filePath) throws IOException {
             return new String(Files.readAllBytes(Paths.get(filePath)));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+
     }
 
 
     private static Map<String, Integer> reduceWordCounts(List<Object> allWordCounts) {
         Map<String, Integer> reducedResult = new HashMap<>();
-        for (Object obj : allWordCounts) {
-            Map<String, Integer> wordCounts = (Map<String, Integer>) obj;
+        for (Object word : allWordCounts) {
+            @SuppressWarnings("unchecked")
+            Map<String, Integer> wordCounts = (Map<String, Integer>) word;
             for (Map.Entry<String, Integer> entry : wordCounts.entrySet()) {
                 reducedResult.merge(entry.getKey(), entry.getValue(), Integer::sum);
             }

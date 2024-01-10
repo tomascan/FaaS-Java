@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         Controller controller = new Controller(4,2048);
-        controller.setPolicy(new GreedyGroup());
+        controller.setPolicy(new UniformGroup(8));
 
         // Registro de acciones
         controller.registerAction("sumar", Actions.sumar, 100);

@@ -3,13 +3,10 @@ package FaaS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
 public class Mainv3 {
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    public static void main(String[] args){
         Controller controller = new Controller(4, 2024);
-        controller.setPolicy(new RoundRobin());
+        controller.setPolicy(new UniformGroup(5));
 
         // Initialize and register Invokers
         for (int i = 0; i < controller.getInvokers().length; i++) {
@@ -21,11 +18,11 @@ public class Mainv3 {
         controller.registerAction("restar", Actions.restar, 256);
         controller.registerAction("multiplicar", Actions.multiplicar, 100);
         controller.registerAction("dividir", Actions.dividir, 256);
-        controller.registerAction("dormir", Actions.dormir, 150);
+        controller.registerAction("dormir", Actions.dormir, 100);
 
         // Asignar grupo acciones
         List<Map<String, Object>> actions = new ArrayList<>();
-        for (int i = 0; i < 52; i++) {
+        for (int i = 0; i < 60; i++) {
             actions.add(Map.of("time", i*10)); // El sleep va incrementando levemente
         }
 

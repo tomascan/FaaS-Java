@@ -92,7 +92,7 @@ public class Controller implements Observer{
         for (Map.Entry<Invoker, List<Map<String, Object>>> entry : allocation.entrySet()) {
             Invoker invoker = entry.getKey();
             List<Map<String, Object>> invokerActions = entry.getValue();
-            int requiredMemory = invokerActions.size() * actionMemory.getOrDefault(actionName, 0);
+//            int requiredMemory = invokerActions.size() * actionMemory.getOrDefault(actionName, 0);
 
             for (Map<String, Object> actionParams : invokerActions) {
                 results.add(invoker.executeAction(actions.get(actionName), actionParams, actionMemory.getOrDefault(actionName, 0)));
@@ -121,6 +121,8 @@ public class Controller implements Observer{
     }
 
 
+
+    //INVOCAR ACCIONES AGRUPADAS DESDE FICHEROS
     public void invokeFile(List<Map<String, Object>> actionDataList) {
         if (policy == null) {
             throw new IllegalStateException("Política no establecida");
@@ -130,8 +132,11 @@ public class Controller implements Observer{
         Map<String, List<Map<String, Object>>> groupedActions = new HashMap<>();
         for (Map<String, Object> actionData : actionDataList) {
             String actionName = (String) actionData.get("actionName");
-            Map<String, Object> parameters = (Map<String, Object>) actionData.get("parameters");
-            groupedActions.computeIfAbsent(actionName, k -> new ArrayList<>()).add(parameters);
+            if (actionData.get("parameters") instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> parameters = (Map<String, Object>) actionData.get("parameters");
+                groupedActions.computeIfAbsent(actionName, k -> new ArrayList<>()).add(parameters);
+            }
         }
 
         // Imprimir las acciones agrupadas
@@ -205,14 +210,12 @@ public class Controller implements Observer{
                 .sum();
         System.out.println("\tTiempo total de ejecución: " + totalExecutionTime + " ms");
 
-        // Calcula y muestra la utilización promedio de memoria de cada Invoker
+        // Calcula y muestra la utilización total de memoria de cada Invoker
         Map<Integer, Integer> avgMemoryUsagePerInvoker = metrics.stream()
                 .collect(Collectors.groupingBy(Metric::getId,
                         Collectors.summingInt(Metric::getMemoryUsed)));
 
-        avgMemoryUsagePerInvoker.forEach((invokerId, avgMemoryUsage) -> {
-            System.out.println("\tInvoker " + invokerId + " - Memoria Total: " + avgMemoryUsage + " MB");
-        });
+        avgMemoryUsagePerInvoker.forEach((invokerId, avgMemoryUsage) -> System.out.println("\tInvoker " + invokerId + " - Memoria Total: " + avgMemoryUsage + " MB"));
     }
 
 
@@ -249,12 +252,12 @@ public class Controller implements Observer{
      */
     public void printCache() {
         System.out.println("\n  Contenido de la caché:");
-        cache.forEach((actionName, cacheMap) -> {
+        for (Map.Entry<String, Map<Map<String, Object>, Object>> entry : cache.entrySet()) {
+            String actionName = entry.getKey();
+            Map<Map<String, Object>, Object> cacheMap = entry.getValue();
             System.out.println("\t\tAcción: " + actionName);
-            cacheMap.forEach((params, result) -> {
-                System.out.println(" \t\t\tParámetros: " + params + " -> Resultado: " + result);
-            });
-        });
+            cacheMap.forEach((params, result) -> System.out.println(" \t\t\tParámetros: " + params + " -> Resultado: " + result));
+        }
     }
 
 }
