@@ -12,7 +12,7 @@ public interface Policy {
      * @param actions         Lista de mapas representando las acciones a distribuir, donde cada mapa contiene los parámetros necesarios para una acción.
      * @param invokers        Lista de invocadores disponibles para ejecutar las acciones.
      * @param memoryPerAction Cantidad de memoria requerida por cada acción.
-     * @return                Un mapa que asocia cada invocador con una lista de acciones (y sus parámetros) que se les ha asignado.
+     * @return Un mapa que asocia cada invocador con una lista de acciones (y sus parámetros) que se les ha asignado.
      */
-    Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction);
+    Map<Invoker, List<Map<String, Object>>> distributeActions(List<Map<String, Object>> actions, List<Invoker> invokers, int memoryPerAction);
 }

@@ -27,17 +27,17 @@ public class BigGroup implements Policy {
      * @param actions         Lista de acciones a distribuir.
      * @param invokers        Lista de invocadores disponibles.
      * @param memoryPerAction Memoria requerida por cada acción.
-     * @return                Mapa que asocia cada invocador con una lista de acciones.
+     * @return Mapa que asocia cada invocador con una lista de acciones.
      * @throws IllegalStateException Si no se pueden asignar todas las acciones debido a la falta de memoria.
      */
     @Override
-    public Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction) {
-        Map<Invoker, List<Map<String, Integer>>> allocation = new HashMap<>();
+    public Map<Invoker, List<Map<String, Object>>> distributeActions(List<Map<String, Object>> actions, List<Invoker> invokers, int memoryPerAction) {
+        Map<Invoker, List<Map<String, Object>>> allocation = new HashMap<>();
         int actionIndex = 0;
 
         while (actionIndex < actions.size()) {
             int end = Math.min(actionIndex + groupSize, actions.size());
-            List<Map<String, Integer>> groupActions = actions.subList(actionIndex, end);
+            List<Map<String, Object>> groupActions = actions.subList(actionIndex, end);
             int requiredMemoryForGroup = groupActions.size() * memoryPerAction;
 
             boolean allocated = false;

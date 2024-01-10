@@ -40,7 +40,7 @@ public class ActionInvocationHandler implements InvocationHandler {
         // Verifica si el método existe en FaaS.Actions y lo invoca, de lo contrario devuelve null
         if (Actions.class.getDeclaredField(actionName) != null) {
             Function<Map<String, Integer>, Integer> action = (Function<Map<String, Integer>, Integer>) Actions.class.getDeclaredField(actionName).get(null);
-            return controller.invoke(actionName, (Map<String, Integer>) args[0]);
+            return controller.invoke(actionName, (Map<String, Object>) args[0]);
         }
 
         return null;

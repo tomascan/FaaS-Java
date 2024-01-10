@@ -8,7 +8,7 @@ import java.util.function.Function;
  * Mide el tiempo de ejecución de la función y lo imprime.
  */
 public class TimerDecorator implements Decorator {
-    private final Function<Map<String, Integer>, Integer> function;
+    private final Function<Map<String, Object>, Object> function;
 
 
     /**
@@ -16,7 +16,7 @@ public class TimerDecorator implements Decorator {
      *
      * @param function La función a la cual se le añadirá la funcionalidad de cronometraje.
      */
-    public TimerDecorator(Function<Map<String, Integer>, Integer> function) {
+    public TimerDecorator(Function<Map<String, Object>, Object> function) {
         this.function = function;
     }
 
@@ -27,9 +27,9 @@ public class TimerDecorator implements Decorator {
      * @return El resultado de la función decorada.
      */
     @Override
-    public Integer apply(Map<String, Integer> params) {
+    public Integer apply(Map<String, Object> params) {
         long startTime = System.nanoTime();
-        Integer result = function.apply(params);
+        Integer result = (Integer) function.apply(params);
         long endTime = System.nanoTime();
         System.out.println("Tiempo de ejecución: " + ((endTime - startTime) / 1.0e6) + " ms");
         return result;

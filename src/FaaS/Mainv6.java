@@ -1,58 +1,56 @@
 package FaaS;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-// ...
 
 public class Mainv6 {
-
     public static void main(String[] args) {
-        Controller controller = new Controller(8, 100);
-        controller.setPolicy(new GreedyGroup());
+        Controller controller = new Controller(10, 200);
+        controller.setPolicy(new RoundRobin());
 
-//        // Registro de acciones
-//        controller.registerAction("wordCount", Actions.wordCount, 5);
-        controller.registerAction("countWords", Actions.countWords, 5);
+        // Registro de acciones
+        controller.registerAction("wordCount", Actions.wordCount, 100);
+        controller.registerAction("countWords", Actions.countWords, 100);
 
         // Lista de rutas de archivos
-        List<String> filePaths = IntStream.rangeClosed(1, 10)  // Si tienes 10 archivos
+        List<String> filePaths = IntStream.rangeClosed(1, 10)
                 .mapToObj(i -> "/home/tomor0/Escritorio/Universidad/TAP/P1/FaaS-TAP-master/Texts/Text" + i + ".txt")
                 .toList();
-        List<Map<String, Integer>> wordCountInputs = new ArrayList<>();
-        List<Map<String, Integer>> countWordsInputs = new ArrayList<>();
+
+        List<Map<String, Object>> wordCountInputs = new ArrayList<>();
+        List<Map<String, Object>> countWordsInputs = new ArrayList<>();
 
         for (String filePath : filePaths) {
             String text = readFile(filePath);
-            int textHash = text.hashCode();
-//
-//            Map<String, Integer> wordCountInput = new HashMap<>();
-//            wordCountInput.put("text", textHash);
-//            wordCountInputs.add(wordCountInput);
 
-            Map<String, Integer> countWordsInput = new HashMap<>();
-            countWordsInput.put("text", textHash);
+            Map<String, Object> wordCountInput = new HashMap<>();
+            wordCountInput.put("text", text);
+            wordCountInputs.add(wordCountInput);
+
+            Map<String, Object> countWordsInput = new HashMap<>();
+            countWordsInput.put("text", text);
             countWordsInputs.add(countWordsInput);
         }
-//
-//        List<Integer> wordCountResults = controller.invoke("wordCount", wordCountInputs);
-        List<Integer> countWordsResults = controller.invoke("countWords", countWordsInputs);
 
+        // Invocar las acciones
+        List<Object> wordCountResults = controller.invoke("wordCount", wordCountInputs);
+        List<Object> countWordsResults = controller.invoke("countWords", countWordsInputs);
 
-//        // En tu método main o donde estés procesando los resultados
-//        Map<String, Integer> reducedWordCount = reduceWordCounts(wordCountResults);
-        int totalWordCount = reduceCountWords(countWordsResults);
+        // Reducir los resultados
+        Map<String, Integer> reducedWordCount = reduceWordCounts(wordCountResults); //Palabra - Concurrencias
+        int totalWordCount = reduceCountWords(countWordsResults); //Total de palabras del texto
 
-//        // Imprimir o utilizar los resultados de WordCount y CountWords
-//        System.out.println("Word Counts: " + reducedWordCount);
+        // Imprimir los resultados
+        System.out.println("Word Counts: " + reducedWordCount);
         System.out.println("Total Word Count: " + totalWordCount);
-    }
 
+
+        for (Invoker invoker : controller.getInvokers()) {
+            System.out.println("FaaS.Invoker " + invoker.getId() + " realizó " + invoker.getActionCount() + " acciones.");
+        }
+    }
 
 
 
@@ -67,9 +65,10 @@ public class Mainv6 {
     }
 
 
-    private static Map<String, Integer> reduceWordCounts(List<Map<String, Integer>> allWordCounts) {
+    private static Map<String, Integer> reduceWordCounts(List<Object> allWordCounts) {
         Map<String, Integer> reducedResult = new HashMap<>();
-        for (Map<String, Integer> wordCounts : allWordCounts) {
+        for (Object obj : allWordCounts) {
+            Map<String, Integer> wordCounts = (Map<String, Integer>) obj;
             for (Map.Entry<String, Integer> entry : wordCounts.entrySet()) {
                 reducedResult.merge(entry.getKey(), entry.getValue(), Integer::sum);
             }
@@ -77,11 +76,16 @@ public class Mainv6 {
         return reducedResult;
     }
 
+
     // Método para reducir los resultados de CountWords
-    private static int reduceCountWords(List<Integer> countWordsResults) {
+    private static int reduceCountWords(List<Object> countWordsResults) {
         int totalWords = 0;
-        for (int count : countWordsResults) {
-            totalWords += count;
+        for (Object count : countWordsResults) {
+            if (count instanceof Integer) {
+                totalWords += (Integer) count;
+            } else {
+                throw new IllegalArgumentException("Todos los elementos de countWordsResults deben ser de tipo Integer.");
+            }
         }
         return totalWords;
     }

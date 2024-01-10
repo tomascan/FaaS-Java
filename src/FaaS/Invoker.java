@@ -106,15 +106,14 @@ public class Invoker {
      * Ejecuta una acción de manera sincrónica.
      *
      * @param action         Función que representa la acción a ejecutar.
-     * @param parameters     Parámetros necesarios para la ejecución de la acción.
+     * @param parameters     Parámetros necesarios para la acción.
      * @param memoryRequired Cantidad de memoria requerida para ejecutar la acción.
      * @return Resultado de la acción ejecutada.
      */
-    public int executeAction(Function<Map<String, Integer>, Integer> action, Map<String, Integer> parameters, int memoryRequired) {
+    public Object executeAction(Function<Map<String, Object>, Object> action, Map<String, Object> parameters, int memoryRequired) {
         long startTime = System.currentTimeMillis(); // Start time
-        reserveMemory(memoryRequired); // Reserve memory for the action
-        int result = 0;
-
+        reserveMemory(memoryRequired);
+        Object result;
         try {
             result = action.apply(parameters);
         } finally {
@@ -140,20 +139,17 @@ public class Invoker {
      * @return Future representando el resultado pendiente de la acción.
      * @throws IllegalStateException Si no hay suficiente memoria para ejecutar la acción.
      */
-    public Future<Integer> executeActionAsync(Function<Map<String, Integer>, Integer> action, Map<String, Integer> parameters, int memoryRequired) {
-        return executor.submit(() -> {
-            if (hasEnoughMemory(memoryRequired)) {
+    public Future<Object> executeActionAsync(Function<Map<String, Object>, Object> action, Map<String, Object> parameters, int memoryRequired) {
+            return executor.submit(() -> {
                 reserveMemory(memoryRequired);
                 try {
                     return action.apply(parameters);
                 } finally {
                     releaseMemory(memoryRequired);
                 }
-            } else {
-                throw new IllegalStateException("No hay suficiente memoria para ejecutar la acción de manera asíncrona");
-            }
-        });
-    }
+            });
+        }
+
 
 
     //OBSERVER -------------------------------------------------------

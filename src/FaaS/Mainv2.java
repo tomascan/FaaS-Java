@@ -11,7 +11,7 @@ public class Mainv2 {
 
     public static void main(String[] args) throws Exception {
         Controller controller = new Controller(8, 100);
-        controller.setPolicy(new BigGroup(5));
+        controller.setPolicy(new UniformGroup(5));
 
         // Registro de acciones
         controller.registerAction("sumar", Actions.sumar, 5);

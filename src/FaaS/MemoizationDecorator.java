@@ -7,7 +7,7 @@ import java.util.function.Function;
  * Almacena los resultados de las invocaciones previas de la función y los reutiliza cuando se encuentran parámetros idénticos.
  */
 public class MemoizationDecorator implements Decorator {
-    private final Function<Map<String, Integer>, Integer> function;
+    private final Function<Map<String, Object>, Object> function;
     private final Controller controller;
 
     /**
@@ -16,7 +16,7 @@ public class MemoizationDecorator implements Decorator {
      * @param function   La función a la cual se le añadirá la funcionalidad de memoización.
      * @param controller El controlador utilizado para almacenar y recuperar resultados memorizados.
      */
-    public MemoizationDecorator(Function<Map<String, Integer>, Integer> function, Controller controller) {
+    public MemoizationDecorator(Function<Map<String, Object>, Object> function, Controller controller) {
         this.function = function;
         this.controller = controller;
     }
@@ -29,13 +29,13 @@ public class MemoizationDecorator implements Decorator {
      * @return El resultado de la función, ya sea recuperado de la memoria o calculado.
      */
     @Override
-    public Integer apply(Map<String, Integer> params) {
+    public Object apply(Map<String, Object> params) {
         String actionName = function.toString();
         Integer cachedResult = controller.getCachedResult(actionName, params);
         if (cachedResult != null) {
             return cachedResult;
         } else {
-            Integer result = function.apply(params);
+            Integer result = (Integer) function.apply(params);
             controller.cacheResult(actionName, params, result);
             return result;
         }

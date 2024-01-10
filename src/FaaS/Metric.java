@@ -5,9 +5,9 @@ package FaaS;
  * Esta clase se utiliza para recopilar y mostrar información sobre el rendimiento de las acciones ejecutadas.
  */
 public class Metric {
-    private int id;
-    private long executionTime;
-    private int memoryUsed;
+    private final int id;
+    private final long executionTime;
+    private final int memoryUsed;
 
     /**
      * Constructor para crear una nueva métrica.
@@ -41,8 +41,7 @@ public class Metric {
         return "Metric{" +
                 "invokerId='" + id + '\'' +
                 ", executionTime=" + String.format("%.6f", executionTimeSeconds) +
-                ", memoryUsed=" + memoryUsed +
+                ", Action Memory=" + memoryUsed +
                 '}';
     }
-
 }

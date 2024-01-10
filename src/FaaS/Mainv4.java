@@ -7,7 +7,7 @@ public class Mainv4 {
     public static void main(String[] args) {
         // Crea una instancia del controlador
         Controller controller = new Controller(4, 2024);
-        controller.setPolicy(new RoundRobin());
+        controller.setPolicy(new UniformGroup(3));
 
         // Registra los observadores para los Invokers
 //        for (int i = 0; i < controller.getInvokers().length; i++) {
@@ -46,45 +46,47 @@ public class Mainv4 {
 //        controller.analyzeMetrics();
 //
         // Aplicar MemoizationDecorator a una acción, por ejemplo, 'sumar'
-        Function<Map<String, Integer>, Integer> sumarMemoized = new MemoizationDecorator(Actions.sumar, controller);
+        Function<Map<String, Object>, Object> sumarMemoized = new MemoizationDecorator(Actions.sumar, controller);
         controller.registerAction("sumar", sumarMemoized, 100);
 
         // Realizar invocaciones repetidas con los mismos parámetros para 'sumar'
-        Map<String, Integer> sumParams = Map.of("x", 5, "y", 3);
-        int sumResult1 = controller.invoke("sumar", sumParams);
+        Map<String, Object> sumParams = Map.of("x", 5, "y", 3);
+        int sumResult1 = (int) controller.invoke("sumar", sumParams);
         System.out.println("Resultado de sumar (1ª vez): " + sumResult1);
 
-        Map<String, Integer> sumParams1 = Map.of("x", 5, "y", 3);
-        int sumResult2 = controller.invoke("sumar", sumParams1);
+        Map<String, Object> sumParams1 = Map.of("x", 5, "y", 3);
+        int sumResult2 = (int) controller.invoke("sumar", sumParams1);
         System.out.println("Resultado de sumar (2ª vez, debería ser de caché): " + sumResult2);
 
         // Aplica solo el TimerDecorator
-        Function<Map<String, Integer>, Integer> factorialConCronometro = new TimerDecorator(Actions.factorial);
+        Function<Map<String, Object>, Object> factorialConCronometro = new TimerDecorator(Actions.factorial);
         controller.registerAction("factorialConCronometro", factorialConCronometro, 100);
 
         // Aplica solo el MemoizationDecorator
-        Function<Map<String, Integer>, Integer> factorialMemoized = new MemoizationDecorator(Actions.factorial, controller);
+        Function<Map<String, Object>, Object> factorialMemoized = new MemoizationDecorator(Actions.factorial, controller);
         controller.registerAction("factorialMemoized", factorialMemoized, 100);
 
         // Aplica ambos, Timer y Memoization
-        Function<Map<String, Integer>, Integer> factorialAmbos = new MemoizationDecorator(new TimerDecorator(Actions.factorial), controller);
+        Function<Map<String, Object>, Object> factorialAmbos = new MemoizationDecorator( new TimerDecorator(Actions.factorial), controller);
         controller.registerAction("factorialAmbos", factorialAmbos, 100);
 
         // Realizar algunas invocaciones
-        Map<String, Integer> factorialParams = Map.of("number", 10);
-        int resultado = controller.invoke("factorialAmbos", factorialParams);
+        Map<String, Object> factorialParams = Map.of("number", 10);
+//        int resultado = (int) controller.invoke("factorialAmbos", factorialParams);
 
-        Map<String, Integer> factorialParams1 = Map.of("number", 25);
+        Map<String, Object> factorialParams1 = Map.of("number", 25);
         for (int i = 0; i < 10; i++) {
-            int resultado1 = controller.invoke("factorialAmbos", factorialParams1);
-            System.out.println("Resultado del factorial (Invocación " + (i + 1) + "): " + resultado);
+            int resultado1 = (int) controller.invoke("factorialAmbos", factorialParams1);
+            System.out.println("Resultado del factorial (Invocación " + (i + 1) + "): " + resultado1);
         }
 
-//        controller.invoke("factorialConCronometro", factorialParams); // Solo cronometraje
-//        controller.invoke("factorialMemoized", factorialParams); // Solo memoización
-//        controller.invoke("factorialAmbos", factorialParams); // Ambos
+        controller.printCache();
 
+        controller.invoke("factorialAmbos", factorialParams); // Ambos
+        controller.invoke("factorialConCronometro", factorialParams); // Solo cronometraje
+        controller.invoke("factorialMemoized", factorialParams); // Solo memoización
 
         controller.printCache();
+
     }
 }

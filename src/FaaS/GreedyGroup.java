@@ -16,15 +16,15 @@ public class GreedyGroup implements Policy {
      * @param actions         Lista de acciones a distribuir.
      * @param invokers        Lista de invocadores disponibles.
      * @param memoryPerAction Memoria requerida por cada acción.
-     * @return                Mapa que asocia cada invocador con una lista de acciones asignadas.
+     * @return Mapa que asocia cada invocador con una lista de acciones asignadas.
      * @throws IllegalStateException Si no hay suficientes invocadores con memoria disponible para todas las acciones.
      */
     @Override
-    public Map<Invoker, List<Map<String, Integer>>> distributeActions(List<Map<String, Integer>> actions, List<Invoker> invokers, int memoryPerAction) {
-        Map<Invoker, List<Map<String, Integer>>> allocation = new HashMap<>();
+    public Map<Invoker, List<Map<String, Object>>> distributeActions(List<Map<String, Object>> actions, List<Invoker> invokers, int memoryPerAction) {
+        Map<Invoker, List<Map<String, Object>>> allocation = new HashMap<>();
         int invokerIndex = 0;
 
-        for (Map<String, Integer> action : actions) {
+        for (Map<String, Object> action : actions) {
             Invoker currentInvoker = invokers.get(invokerIndex);
             while (!currentInvoker.hasEnoughMemory(memoryPerAction)) {
                 invokerIndex++;

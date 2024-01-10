@@ -15,7 +15,7 @@ public class Controller implements Observer{
     private Policy policy; //FaaS.Policy Manager
 
     // Mapa que asocia nombres de acción con sus respectivas funciones.
-    private Map<String, Function<Map<String, Integer>, Integer>> actions = new HashMap<>();
+    private final Map<String, Function<Map<String, Object>, Object>> actions = new HashMap<>();
     private final Map<String, Integer> actionMemory = new HashMap<>(); // Mapa almacena la memoria requerida para cada acción.
 
     private final List<Metric> metrics = new ArrayList<>();
@@ -52,7 +52,7 @@ public class Controller implements Observer{
      * @param action     Función que implementa la acción.
      * @param memory     Memoria requerida para la acción.
      */
-    public void registerAction(String actionName, Function<Map<String, Integer>, Integer> action, int memory) {
+    public void registerAction(String actionName, Function<Map<String, Object>, Object> action, int memory) {
         actions.put(actionName, action);
         actionMemory.put(actionName, memory); // Almacenar la memoria requerida para la acción
     }
@@ -70,7 +70,7 @@ public class Controller implements Observer{
      * @param parameters  Parámetros requeridos para la acción.
      * @return            Resultado de la invocación de la acción.
      */
-    public int invoke(String actionName, Map<String, Integer> parameters) {
+    public Object invoke(String actionName, Map<String, Object> parameters) {
         return this.invoke(actionName, List.of(parameters)).get(0);
     }
 
@@ -81,21 +81,21 @@ public class Controller implements Observer{
      * @param parameters  Lista de mapas de parámetros para cada invocación.
      * @return            Lista de resultados de las invocaciones.
      */
-    public List<Integer> invoke(String actionName, List<Map<String, Integer>> parameters) {
-        List<Integer> results = new ArrayList<>();
+    public  List<Object> invoke(String actionName, List<Map<String, Object>> parameters) {
+        List<Object> results = new ArrayList<>();
         if (policy == null) {
             throw new IllegalStateException("Política no establecida");
         }// La política distribuye las acciones y retorna la asignación
 
-        Map<Invoker, List<Map<String, Integer>>> allocation = policy.distributeActions(parameters, Arrays.asList(invokers), actionMemory.getOrDefault(actionName, 0));
+        Map<Invoker, List<Map<String, Object>>> allocation = policy.distributeActions(parameters, Arrays.asList(invokers), actionMemory.getOrDefault(actionName, 0));
         // Ejecuta las acciones
-        for (Map.Entry<Invoker, List<Map<String, Integer>>> entry : allocation.entrySet()) {
+        for (Map.Entry<Invoker, List<Map<String, Object>>> entry : allocation.entrySet()) {
             Invoker invoker = entry.getKey();
-            List<Map<String, Integer>> invokerActions = entry.getValue();
+            List<Map<String, Object>> invokerActions = entry.getValue();
             int requiredMemory = invokerActions.size() * actionMemory.getOrDefault(actionName, 0);
 
-            for (Map<String, Integer> actionParams : invokerActions) {
-                results.add(invoker.executeAction(actions.get(actionName), actionParams, requiredMemory));
+            for (Map<String, Object> actionParams : invokerActions) {
+                results.add(invoker.executeAction(actions.get(actionName), actionParams, actionMemory.getOrDefault(actionName, 0)));
             }
         }
         return results;
@@ -104,12 +104,12 @@ public class Controller implements Observer{
     /**
      * Realiza una invocación asincrónica de la acción especificada.
      *
-     * @param actionName  Nombre de la acción a invocar.
-     * @param parameters  Parámetros requeridos para la acción.
-     * @return            Future representando el resultado pendiente de la invocación.
+     * @param actionName Nombre de la acción a invocar.
+     * @param parameters Parámetros requeridos para la acción.
+     * @return Future representando el resultado pendiente de la invocación.
      * @throws IllegalStateException Si no hay suficiente memoria para ejecutar la acción.
      */
-    public Future<Integer> invoke_async(String actionName, Map<String, Integer> parameters) {
+    public Future<Object> invoke_async(String actionName, Map<String, Object> parameters) {
         int memoryRequired = actionMemory.getOrDefault(actionName, 0);
 
         for (Invoker invoker : invokers) {
@@ -127,10 +127,10 @@ public class Controller implements Observer{
         }
 
         // Agrupar acciones por nombre
-        Map<String, List<Map<String, Integer>>> groupedActions = new HashMap<>();
+        Map<String, List<Map<String, Object>>> groupedActions = new HashMap<>();
         for (Map<String, Object> actionData : actionDataList) {
             String actionName = (String) actionData.get("actionName");
-            Map<String, Integer> parameters = (Map<String, Integer>) actionData.get("parameters");
+            Map<String, Object> parameters = (Map<String, Object>) actionData.get("parameters");
             groupedActions.computeIfAbsent(actionName, k -> new ArrayList<>()).add(parameters);
         }
 
@@ -141,14 +141,14 @@ public class Controller implements Observer{
         }
 
         // Invocar acciones agrupadas
-        for (Map.Entry<String, List<Map<String, Integer>>> entry : groupedActions.entrySet()) {
+        for (Map.Entry<String, List<Map<String, Object>>> entry : groupedActions.entrySet()) {
             String actionName = entry.getKey();
-            List<Map<String, Integer>> paramsList = entry.getValue();
+            List<Map<String, Object>> paramsList = entry.getValue();
 
             System.out.println("Invocando acciones para: " + actionName);
 
             // Ejecutar acciones agrupadas aplicando la política
-            List<Integer> results = invoke(actionName, paramsList);
+            List<Object> results = invoke(actionName, paramsList);
             // Imprimir resultados de la invocación
             System.out.println("Resultados de la acción '" + actionName + "': " + results);
         }
@@ -177,37 +177,49 @@ public class Controller implements Observer{
      * máximo y mínimo de ejecución, y el uso promedio de memoria por invocador.
      */
     public void analyzeMetrics() {
+        System.out.println("\nMétricas principales:");
+
+        // Calcula y muestra el tiempo promedio de ejecución de todas las acciones
         double avgTime = metrics.stream()
                 .mapToDouble(Metric::getExecutionTime)
                 .average()
                 .orElse(0.0);
+        System.out.println("\tTiempo promedio de ejecución: " + avgTime + " ms");
 
+        // Calcula y muestra el tiempo máximo y mínimo de ejecución de todas las acciones
         long maxTime = metrics.stream()
                 .mapToLong(Metric::getExecutionTime)
                 .max()
                 .orElse(0L);
+        System.out.println("\tTiempo máximo de ejecución: " + maxTime + " ms");
 
         long minTime = metrics.stream()
                 .mapToLong(Metric::getExecutionTime)
                 .min()
                 .orElse(0L);
+        System.out.println("\tTiempo mínimo de ejecución: " + minTime + " ms");
 
+        // Calcula y muestra el tiempo total de ejecución de todas las acciones
         long totalExecutionTime = metrics.stream()
                 .mapToLong(Metric::getExecutionTime)
                 .sum();
+        System.out.println("\tTiempo total de ejecución: " + totalExecutionTime + " ms");
 
-        Map<Integer, Double> avgMemoryUsagePerInvoker = metrics.stream()
+        // Calcula y muestra la utilización promedio de memoria de cada Invoker
+        Map<Integer, Integer> avgMemoryUsagePerInvoker = metrics.stream()
                 .collect(Collectors.groupingBy(Metric::getId,
-                        Collectors.averagingInt(Metric::getMemoryUsed)));
+                        Collectors.summingInt(Metric::getMemoryUsed)));
 
-        // Aquí puedes agregar más cálculos según sea necesario
+        avgMemoryUsagePerInvoker.forEach((invokerId, avgMemoryUsage) -> {
+            System.out.println("\tInvoker " + invokerId + " - Memoria Total: " + avgMemoryUsage + " MB");
+        });
     }
 
 
 
 
-// DECORATOR --------------------------------------------
-    private Map<String, Map<Map<String, Integer>, Integer>> cache = new HashMap<>();
+    // DECORATOR --------------------------------------------
+    private final Map<String, Map<Map<String, Object>, Object>> cache = new HashMap<>();
 
     /**
      * Obtiene un resultado previamente almacenado en la caché, si está disponible.
@@ -216,8 +228,8 @@ public class Controller implements Observer{
      * @param parameters Parámetros de la acción.
      * @return El resultado almacenado en caché, o null si no está disponible.
      */
-    public Integer getCachedResult(String actionName, Map<String, Integer> parameters) {
-        return cache.getOrDefault(actionName, new HashMap<>()).get(parameters);
+    public Integer getCachedResult(String actionName, Map<String, Object> parameters) {
+        return (Integer) cache.getOrDefault(actionName, new HashMap<>()).get(parameters);
     }
 
     /**
@@ -227,7 +239,7 @@ public class Controller implements Observer{
      * @param parameters Parámetros de la acción.
      * @param result     El resultado de la acción.
      */
-    public void cacheResult(String actionName, Map<String, Integer> parameters, Integer result) {
+    public void cacheResult(String actionName, Map<String, Object> parameters, Integer result) {
         cache.computeIfAbsent(actionName, k -> new HashMap<>()).put(parameters, result);
     }
 
@@ -236,11 +248,11 @@ public class Controller implements Observer{
      * Imprime el contenido actual de la caché, mostrando las acciones, sus parámetros y resultados.
      */
     public void printCache() {
-        System.out.println("Contenido de la caché:");
+        System.out.println("\n  Contenido de la caché:");
         cache.forEach((actionName, cacheMap) -> {
-            System.out.println("Acción: " + actionName);
+            System.out.println("\t\tAcción: " + actionName);
             cacheMap.forEach((params, result) -> {
-                System.out.println(" Parámetros: " + params + " -> Resultado: " + result);
+                System.out.println(" \t\t\tParámetros: " + params + " -> Resultado: " + result);
             });
         });
     }
