@@ -141,8 +141,8 @@ public class Invoker {
      */
     public Future<Object> executeActionAsync(Function<Map<String, Object>, Object> action, Map<String, Object> parameters, int memoryRequired) {
             return executor.submit(() -> {
-                reserveMemory(memoryRequired);
                 try {
+                    actionCount++;
                     return action.apply(parameters);
                 } finally {
                     releaseMemory(memoryRequired);

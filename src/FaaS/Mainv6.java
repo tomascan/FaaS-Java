@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class Mainv6 {
     public static void main(String[] args) throws IOException {
-        Controller controller = new Controller(10, 200);
+        Controller controller = new Controller(10, 20000);
         controller.setPolicy(new RoundRobin());
 
         // Registro de acciones
@@ -20,27 +21,29 @@ public class Mainv6 {
                 .mapToObj(i -> "/home/tomor0/Escritorio/Universidad/TAP/P1/FaaS-TAP-master/Texts/Text" + i + ".txt")
                 .toList();
 
-        List<Map<String, Object>> wordCountInputs = new ArrayList<>();
-        List<Map<String, Object>> countWordsInputs = new ArrayList<>();
+        List<Map<String, Object>> inputs = new ArrayList<>();
 
         for (String filePath : filePaths) {
             String text = readFile(filePath);
 
-            Map<String, Object> wordCountInput = new HashMap<>();
-            wordCountInput.put("text", text);
-            wordCountInputs.add(wordCountInput);
-
-            Map<String, Object> countWordsInput = new HashMap<>();
-            countWordsInput.put("text", text);
-            countWordsInputs.add(countWordsInput);
+            Map<String, Object> input = new HashMap<>();
+            input.put("text", text);
+            inputs.add(input);
         }
 
+        // Decorar con TimerDecorator para ver el tiempo de lectura de cada fichero
+        Function<Map<String, Object>, Object> wordCountTimer= new TimerDecorator(Actions.countWords);
+        controller.registerAction("wordCountTimer", wordCountTimer, 100);
+        // Usa las versiones decoradas de las funciones (Los Maps decorados no se pueden reducir)
+        controller.invoke("wordCountTimer", inputs);
+
+
         // Invocar las acciones
-        List<Object> wordCountResults = controller.invoke("wordCount", wordCountInputs);
-        List<Object> countWordsResults = controller.invoke("countWords", countWordsInputs);
+        List<Object> wordCountResults = controller.invoke("wordCount", inputs);
+        List<Object> countWordsResults = controller.invoke("countWords", inputs);
 
         // Reducir los resultados
-        Map<String, Integer> reducedWordCount = reduceWordCounts(wordCountResults); //Palabra - Concurrencias
+        Map<String, Integer> reducedWordCount = reduceWordCount(wordCountResults); //Palabra - Concurrencias
         int totalWordCount = reduceCountWords(countWordsResults); //Total de palabras del texto
 
         // Imprimir los resultados
@@ -51,6 +54,7 @@ public class Mainv6 {
         for (Invoker invoker : controller.getInvokers()) {
             System.out.println("FaaS.Invoker " + invoker.getId() + " realizó " + invoker.getActionCount() + " acciones.");
         }
+
     }
 
 
@@ -62,7 +66,7 @@ public class Mainv6 {
     }
 
 
-    private static Map<String, Integer> reduceWordCounts(List<Object> allWordCounts) {
+    private static Map<String, Integer> reduceWordCount(List<Object> allWordCounts) {
         Map<String, Integer> reducedResult = new HashMap<>();
         for (Object word : allWordCounts) {
             @SuppressWarnings("unchecked")

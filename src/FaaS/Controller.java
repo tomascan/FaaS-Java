@@ -88,11 +88,11 @@ public class Controller implements Observer{
         }// La política distribuye las acciones y retorna la asignación
 
         Map<Invoker, List<Map<String, Object>>> allocation = policy.distributeActions(parameters, Arrays.asList(invokers), actionMemory.getOrDefault(actionName, 0));
+
         // Ejecuta las acciones
         for (Map.Entry<Invoker, List<Map<String, Object>>> entry : allocation.entrySet()) {
             Invoker invoker = entry.getKey();
             List<Map<String, Object>> invokerActions = entry.getValue();
-//            int requiredMemory = invokerActions.size() * actionMemory.getOrDefault(actionName, 0);
 
             for (Map<String, Object> actionParams : invokerActions) {
                 results.add(invoker.executeAction(actions.get(actionName), actionParams, actionMemory.getOrDefault(actionName, 0)));
@@ -102,7 +102,7 @@ public class Controller implements Observer{
     }
 
     /**
-     * Realiza una invocación asincrónica de la acción especificada.
+     * Realiza una invocación asincrónica de la acción especificada. No utiliza políticas
      *
      * @param actionName Nombre de la acción a invocar.
      * @param parameters Parámetros requeridos para la acción.
@@ -114,6 +114,7 @@ public class Controller implements Observer{
 
         for (Invoker invoker : invokers) {
             if (invoker.hasEnoughMemory(memoryRequired)) {
+                invoker.reserveMemory(memoryRequired); //Se reserva la memoria de cada acción
                 return invoker.executeActionAsync(actions.get(actionName), parameters, memoryRequired);
             }
         }
@@ -173,10 +174,12 @@ public class Controller implements Observer{
     @Override
     public void updateMetrics(Metric metric) {
         metrics.add(metric);
-        System.out.println("Metric received: " + metric);
+//        System.out.println("Metric received: " + metric);
     }
 
-
+    public List<Metric> getMetrics(){
+        return metrics;
+    }
     /**
      * Analiza y muestra estadísticas basadas en las métricas recogidas, como el tiempo promedio,
      * máximo y mínimo de ejecución, y el uso promedio de memoria por invocador.
@@ -186,34 +189,34 @@ public class Controller implements Observer{
 
         // Calcula y muestra el tiempo promedio de ejecución de todas las acciones
         double avgTime = metrics.stream()
-                .mapToDouble(Metric::getExecutionTime)
+                .mapToDouble(Metric::executionTime)
                 .average()
                 .orElse(0.0);
         System.out.println("\tTiempo promedio de ejecución: " + avgTime + " ms");
 
         // Calcula y muestra el tiempo máximo y mínimo de ejecución de todas las acciones
         long maxTime = metrics.stream()
-                .mapToLong(Metric::getExecutionTime)
+                .mapToLong(Metric::executionTime)
                 .max()
                 .orElse(0L);
         System.out.println("\tTiempo máximo de ejecución: " + maxTime + " ms");
 
         long minTime = metrics.stream()
-                .mapToLong(Metric::getExecutionTime)
+                .mapToLong(Metric::executionTime)
                 .min()
                 .orElse(0L);
         System.out.println("\tTiempo mínimo de ejecución: " + minTime + " ms");
 
         // Calcula y muestra el tiempo total de ejecución de todas las acciones
         long totalExecutionTime = metrics.stream()
-                .mapToLong(Metric::getExecutionTime)
+                .mapToLong(Metric::executionTime)
                 .sum();
         System.out.println("\tTiempo total de ejecución: " + totalExecutionTime + " ms");
 
         // Calcula y muestra la utilización total de memoria de cada Invoker
         Map<Integer, Integer> avgMemoryUsagePerInvoker = metrics.stream()
-                .collect(Collectors.groupingBy(Metric::getId,
-                        Collectors.summingInt(Metric::getMemoryUsed)));
+                .collect(Collectors.groupingBy(Metric::id,
+                        Collectors.summingInt(Metric::memoryUsed)));
 
         avgMemoryUsagePerInvoker.forEach((invokerId, avgMemoryUsage) -> System.out.println("\tInvoker " + invokerId + " - Memoria Total: " + avgMemoryUsage + " MB"));
     }

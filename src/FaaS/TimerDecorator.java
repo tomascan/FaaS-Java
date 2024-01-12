@@ -27,7 +27,7 @@ public class TimerDecorator implements Decorator {
      * @return El resultado de la función decorada.
      */
     @Override
-    public Integer apply(Map<String, Object> params) {
+    public Object apply(Map<String, Object> params) {
         long startTime = System.nanoTime();
         Integer result = (Integer) function.apply(params);
         long endTime = System.nanoTime();

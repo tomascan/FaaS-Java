@@ -22,7 +22,7 @@ public class Mainv3 {
 
         // Asignar grupo acciones
         List<Map<String, Object>> actions = new ArrayList<>();
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 54; i++) {
             actions.add(Map.of("time", i*10)); // El sleep va incrementando levemente
         }
 
@@ -31,7 +31,7 @@ public class Mainv3 {
 
         // Printear Resultados
         for (Invoker invoker : controller.getInvokers()) {
-            System.out.println("FaaS.Invoker " + invoker.getId() + " realizó " + invoker.getActionCount() + " acciones.");
+            System.out.println("Invoker " + invoker.getId() + " realizó " + invoker.getActionCount() + " acciones.");
         }
 
         controller.analyzeMetrics();

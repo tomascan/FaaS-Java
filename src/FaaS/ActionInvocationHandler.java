@@ -3,7 +3,6 @@ package FaaS;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Manejador de invocación para el proxy de acciones.
@@ -33,13 +32,11 @@ public class ActionInvocationHandler implements InvocationHandler {
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        // Obtiene el nombre del método que fue llamado en el proxy
         String actionName = method.getName();
+        System.out.println("Invocando acción: " +actionName);
 
-        // Asume que el primer argumento es un Map<String, Integer>
-        // Verifica si el método existe en FaaS.Actions y lo invoca, de lo contrario devuelve null
+        // Verifica si el método existe y lo invoca
         if (Actions.class.getDeclaredField(actionName) != null) {
-            Function<Map<String, Integer>, Integer> action = (Function<Map<String, Integer>, Integer>) Actions.class.getDeclaredField(actionName).get(null);
             return controller.invoke(actionName, (Map<String, Object>) args[0]);
         }
 

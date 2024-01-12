@@ -11,7 +11,12 @@ public class Mainv2 {
 
     public static void main(String[] args) throws Exception {
         Controller controller = new Controller(8, 100);
-        controller.setPolicy(new UniformGroup(5));
+        controller.setPolicy(new RoundRobin());
+
+        // Initialize and register Invokers
+        for (int i = 0; i < controller.getInvokers().length; i++) {
+            controller.getInvokers()[i].registerObserver(controller);
+        }
 
         // Registro de acciones
         controller.registerAction("sumar", Actions.sumar, 5);
@@ -26,19 +31,18 @@ public class Mainv2 {
         processFiles(allActions, 1, 10);
         controller.invokeFile(allActions);
 
-        //Mostrar el contador de acciones realizadas por cada FaaS.Invoker
+        //Mostrar el contador de acciones realizadas por cada Invoker
         for(int i = 0; i < controller.invokers.length; i++){
-            System.out.println("FaaS.Invoker " + (i + 1) + " realizó " + controller.invokers[i].getActionCount() + " acciones.");
+            System.out.println("Invoker " + (i + 1) + " realizó " + controller.invokers[i].getActionCount() + " acciones.");
         }
 
         // Calcular y mostrar métricas
         controller.analyzeMetrics();
-
-        //Mostrar el contador de acciones realizadas por cada FaaS.Invoker
-        for(int i = 0; i < controller.invokers.length; i++){
-            System.out.println("Invoker " +controller.invokers[i].getId()+ " realizó " + controller.invokers[i].getActionCount() + " acciones.");
-        }
     }
+
+
+
+
 
 
     private static void processFiles(List<Map<String, Object>> allActions, int currentFile, int totalFiles) throws IOException {

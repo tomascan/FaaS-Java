@@ -28,12 +28,12 @@ public class Mainv5 {
                 new ActionInvocationHandler(controller)
         );
 
-        // Utiliza el proxy para invocar acciones
-        Map<String, Integer> paramsSumar = Map.of("x", 5, "y", 3);
+        // Utiliza el proxy para invocar acciones sin necesidad de Controller
+        Map<String, Object> paramsSumar = Map.of("x", 5, "y", 3);
         Integer resultadoSumar = actionsProxy.sumar(paramsSumar);
         System.out.println("Resultado de sumar: " + resultadoSumar);
 
-        Map<String, Integer> paramsFactorial = Map.of("number", 5);
+        Map<String, Object> paramsFactorial = Map.of("number", 5);
         Integer resultadoFactorial = actionsProxy.factorial(paramsFactorial);
         System.out.println("Resultado del factorial: " + resultadoFactorial);
 
