@@ -79,6 +79,7 @@ public class Invoker {
      * @return true si hay suficiente memoria disponible, false en caso contrario.
      */
     public boolean hasEnoughMemory(int requiredMemory) {
+//        System.out.println("Invoker "+ getId()+". Disponible: "+ getMemory());
         return memory.get() >= requiredMemory;
     }
 
@@ -89,7 +90,10 @@ public class Invoker {
      * @param memoryToReserve Cantidad de memoria a reservar.
      */
     public void reserveMemory(int memoryToReserve) {
+        System.out.println("Invoker "+ getId()+" Reservando memoria: "+memoryToReserve);
         memory.addAndGet(-memoryToReserve);
+        System.out.println("\tDespues de reservar. Memoria Disponible: "+ getMemory());
+
     }
 
     /**
@@ -98,7 +102,10 @@ public class Invoker {
      * @param memoryToRelease Cantidad de memoria a liberar.
      */
     public void releaseMemory(int memoryToRelease) {
+        System.out.println("Invoker "+ getId()+" Liberando memoria: "+memoryToRelease);
         memory.addAndGet(memoryToRelease);
+        System.out.println("\tDespues de liberar, Memoria Disponible: "+ getMemory());
+
     }
 
 
@@ -112,7 +119,6 @@ public class Invoker {
      */
     public Object executeAction(Function<Map<String, Object>, Object> action, Map<String, Object> parameters, int memoryRequired) {
         long startTime = System.currentTimeMillis(); // Start time
-        reserveMemory(memoryRequired);
         Object result;
         try {
             result = action.apply(parameters);
@@ -122,7 +128,7 @@ public class Invoker {
             long executionTime = endTime - startTime; // Calculate execution time
 
             Metric metric = new Metric(this.id, executionTime, memoryRequired);
-            notifyObservers(metric); // Notify the FaaS.Controller
+            notifyObservers(metric); // Notify the Controller
         }
 
         actionCount++; // Increase action count

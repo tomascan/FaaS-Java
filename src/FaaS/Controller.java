@@ -123,6 +123,8 @@ public class Controller implements Observer{
 
 
 
+    // INVOKE FILES FOR NUMERIC ACTIONS
+
     //INVOCAR ACCIONES AGRUPADAS DESDE FICHEROS
     public void invokeFile(List<Map<String, Object>> actionDataList) {
         if (policy == null) {

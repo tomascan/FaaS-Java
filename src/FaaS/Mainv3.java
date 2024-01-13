@@ -6,7 +6,7 @@ import java.util.Map;
 public class Mainv3 {
     public static void main(String[] args){
         Controller controller = new Controller(4, 2024);
-        controller.setPolicy(new UniformGroup(5));
+        controller.setPolicy(new RoundRobin());
 
         // Initialize and register Invokers
         for (int i = 0; i < controller.getInvokers().length; i++) {
@@ -26,8 +26,14 @@ public class Mainv3 {
             actions.add(Map.of("time", i*10)); // El sleep va incrementando levemente
         }
 
+        List<Map<String, Object>> actions1 = new ArrayList<>();
+        for (int i = 0; i < 54; i++) {
+            actions1.add(Map.of("time", i*10)); // El sleep va incrementando levemente
+        }
         //Ejecutar grupo de acciones
         controller.invoke("dormir", actions);
+        System.out.println("----------------------------------------------------");
+        controller.invoke("dormir", actions1);
 
         // Printear Resultados
         for (Invoker invoker : controller.getInvokers()) {
