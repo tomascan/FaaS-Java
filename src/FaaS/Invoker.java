@@ -1,7 +1,6 @@
 package FaaS;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -21,10 +20,7 @@ public class Invoker {
     private final AtomicInteger memory; //Memoria del Invoker controlada de manera atómica para multithreading
     private int actionCount = 0; //Cantidad de acciones ejecutadas
 
-    private Controller controller;
     private final List<Observer> observers = new ArrayList<>(); //Lista de observers que apuntaran al controller
-
-    private final Map<String, Map<Map<String, Integer>, Integer>> cache = new HashMap<>(); // cache para el FaaS.Decorator
 
 
     /**
@@ -44,14 +40,6 @@ public class Invoker {
         return id;
     }
 
-    /**
-     * Obtiene la cantidad actual de memoria disponible en el FaaS.Invoker.
-     *
-     * @return Cantidad de memoria disponible.
-     */
-    public int getMemory() {
-        return memory.get();
-    }
 
     /**
      * Obtiene el número de acciones ejecutadas por este FaaS.Invoker.
@@ -64,7 +52,18 @@ public class Invoker {
 
 
     /**
-     * Establece una nueva cantidad de memoria disponible en el FaaS.Invoker.
+     * Obtiene la cantidad actual de memoria disponible en el FaaS.Invoker.
+     *
+     * @return Cantidad de memoria disponible.
+     */
+    public int getMemory() {
+        return memory.get();
+    }
+
+
+    // ------------------ MEMORIA -------------------------
+    /**
+     * Establece una cantidad de memoria para el Invoker.
      *
      * @param mem Nueva cantidad de memoria a establecer.
      */
@@ -90,9 +89,9 @@ public class Invoker {
      * @param memoryToReserve Cantidad de memoria a reservar.
      */
     public void reserveMemory(int memoryToReserve) {
-        System.out.println("Invoker "+ getId()+" Reservando memoria: "+memoryToReserve);
+//        System.out.println("Invoker "+ getId()+" Reservando memoria: "+memoryToReserve);
         memory.addAndGet(-memoryToReserve);
-        System.out.println("\tDespues de reservar. Memoria Disponible: "+ getMemory());
+//        System.out.println("\tDespues de reservar. Memoria Disponible: "+ getMemory());
 
     }
 
@@ -102,12 +101,13 @@ public class Invoker {
      * @param memoryToRelease Cantidad de memoria a liberar.
      */
     public void releaseMemory(int memoryToRelease) {
-        System.out.println("Invoker "+ getId()+" Liberando memoria: "+memoryToRelease);
+//        System.out.println("Invoker "+ getId()+" Liberando memoria: "+memoryToRelease);
         memory.addAndGet(memoryToRelease);
-        System.out.println("\tDespues de liberar, Memoria Disponible: "+ getMemory());
+//        System.out.println("\tDespues de liberar, Memoria Disponible: "+ getMemory());
 
     }
 
+    // ---------------------- EXECUTE ------------------------
 
     /**
      * Ejecuta una acción de manera sincrónica.

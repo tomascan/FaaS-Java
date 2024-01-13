@@ -1,17 +1,15 @@
 package FaaS;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         Controller controller = new Controller(5,2048);
-        controller.setPolicy(new UniformGroup(3));
+        controller.setPolicy(new BigGroup(3));
 
         // Registro de acciones
         controller.registerAction("sumar", Actions.sumar, 256);
@@ -38,7 +36,6 @@ public class Main {
         futures.add(controller.invoke_async("dormir", Map.of("time", 5000)));
         futures.add(controller.invoke_async("dormir", Map.of("time", 5000)));
 
-        // Esperar a que todos los hilos hayan terminado
         for (Future<Object> fut : futures) {
                 fut.get(); // Esperar a que cada hilo termine antes de continuar
                 System.out.println("Resultado: " + fut.get());
@@ -53,7 +50,7 @@ public class Main {
 
         //Policy Managment en grupos de acciones
         List<Map<String, Object>> actions = new ArrayList<>();
-        for(int i = 1; i <21; i++){
+        for(int i = 1; i <30; i++){
             actions.add(Map.of("x", i+1, "y", i));
         }
         controller.invoke("dividir", actions);
@@ -69,7 +66,7 @@ public class Main {
         controller.setPolicy(new GreedyGroup());
 
         List<Map<String, Object>> actions1 = new ArrayList<>();
-        for(int i = 0; i <18; i++){
+        for(int i = 0; i <30; i++){
             actions1.add(Map.of("x", i, "y", i+1));
         }
         controller.invoke("multiplicar", actions1);

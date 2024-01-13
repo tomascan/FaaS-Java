@@ -6,7 +6,7 @@ import java.util.Map;
 public class Mainv5 {
     public static void main(String[] args) {
         Controller controller = new Controller(4, 2024);
-        controller.setPolicy(new RoundRobin());
+        controller.setPolicy(new GreedyGroup());
 
         // Initialize and register Invokers
 //        for (int i = 0; i < controller.getInvokers().length; i++) {
@@ -36,6 +36,8 @@ public class Mainv5 {
         Map<String, Object> paramsFactorial = Map.of("number", 5);
         Integer resultadoFactorial = actionsProxy.factorial(paramsFactorial);
         System.out.println("Resultado del factorial: " + resultadoFactorial);
+
+//        System.out.println(controller.getMetrics());
 
     }
 }

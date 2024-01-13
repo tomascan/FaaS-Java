@@ -30,11 +30,11 @@ public class ActionInvocationHandler implements InvocationHandler {
      * @return El resultado de la acción ejecutada por el controlador.
      * @throws Throwable Si ocurre un error durante la invocación.
      */
+    @SuppressWarnings("unchecked") //El casting se controla manualmente.
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String actionName = method.getName();
         System.out.println("Invocando acción: " +actionName);
-
         // Verifica si el método existe y lo invoca
         if (Actions.class.getDeclaredField(actionName) != null) {
             return controller.invoke(actionName, (Map<String, Object>) args[0]);

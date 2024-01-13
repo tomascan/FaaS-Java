@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class Controller implements Observer{
     final Invoker[] invokers; //Lista de Invokers
-    private Policy policy; //FaaS.Policy Manager
+    private Policy policy; //Policy Manager
 
     // Mapa que asocia nombres de acción con sus respectivas funciones.
     private final Map<String, Function<Map<String, Object>, Object>> actions = new HashMap<>();
