@@ -24,7 +24,9 @@ public class Mainv2 {
         controller.registerAction("multiplicar", Actions.multiplicar, 5);
         controller.registerAction("dividir", Actions.dividir, 5);
         controller.registerAction("dormir", Actions.dormir, 5);
-
+        controller.registerAction("factorial", Actions.factorial, 5);
+        controller.registerAction("wordCount", Actions.wordCount, 100);
+        controller.registerAction("countWords", Actions.countWords, 100);
 
         // Procesar una serie de archivos
         List<Map<String, Object>> allActions = new ArrayList<>();
@@ -72,18 +74,30 @@ public class Mainv2 {
         }
 
         String[] parts = content.split("\\s+", 2);
-        // Comprobar si hay suficientes partes para una acción y parámetros
+        // Comprobar si hay suficientes partes para una acción y sus parámetros
         if (parts.length < 2) {
             return null;
         }
 
         String actionName = parts[0];
-        Map<String, Integer> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
+        // Divide los parámetros en pares clave-valor
         String[] keyValuePairs = parts[1].split("\\s+");
         for (String pair : keyValuePairs) {
-            String[] keyValue = pair.split("=");
+            String[] keyValue = pair.split("=", 2);
             if (keyValue.length == 2) {
-                params.put(keyValue[0].trim(), Integer.parseInt(keyValue[1].trim()));
+                String key = keyValue[0].trim();
+                String value = keyValue[1].trim();
+                // Intenta convertir a Integer, si falla, asume que es String
+                try {
+                    params.put(key, Integer.parseInt(value));
+                } catch (NumberFormatException e) {
+                    // Elimina las comillas si es necesario
+                    if (value.startsWith("\"") && value.endsWith("\"")) {
+                        value = value.substring(1, value.length() - 1);
+                    }
+                    params.put(key, value);
+                }
             }
         }
 

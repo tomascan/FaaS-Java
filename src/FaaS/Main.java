@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
@@ -16,13 +17,20 @@ public class Main {
         controller.registerAction("restar", Actions.restar, 256);
         controller.registerAction("multiplicar", Actions.multiplicar, 256);
         controller.registerAction("dividir", Actions.dividir, 256);
-        controller.registerAction("dormir", Actions.dormir, 1024);
+        controller.registerAction("dormir", Actions.dormir, 100);
 
-////        // Ejemplos de uso individual
-//        System.out.println("Suma: " + controller.invoke("sumar", Map.of("x", 6, "y", 2)));
-//        System.out.println("Resta: " + controller.invoke("restar", Map.of("x", 6, "y", 2)));
-//        System.out.println("Multiplicación: " + controller.invoke("multiplicar", Map.of("x", 6, "y", 2)));
-//        System.out.println("División: " + controller.invoke("dividir", Map.of("x", 6, "y", 2)));
+
+
+        // Ejemplos de uso individual
+        Function<Map<String, Object>, Object> action = Actions.sumar;
+        Map<String, Object> parameters = Map.of("x", 10, "y", 10);
+        Object result = action.apply(parameters);
+        System.out.println("Suma: " +result);
+
+        System.out.println("Suma: " + controller.invoke("sumar", Map.of("x", 10, "y", 5)));
+        System.out.println("Resta: " + controller.invoke("restar", Map.of("x", 10, "y", 5)));
+        System.out.println("Multiplicación: " + controller.invoke("multiplicar", Map.of("x", 10, "y", 5)));
+        System.out.println("División: " + controller.invoke("dividir", Map.of("x", 10, "y", 5)));
 
 
         // Métodos Asíncronos y Futures
@@ -37,7 +45,7 @@ public class Main {
         futures.add(controller.invoke_async("dormir", Map.of("time", 5000)));
 
         for (Future<Object> fut : futures) {
-                fut.get(); // Esperar a que cada hilo termine antes de continuar
+                fut.get();
                 System.out.println("Resultado: " + fut.get());
         }
 
@@ -51,9 +59,9 @@ public class Main {
         //Policy Managment en grupos de acciones
         List<Map<String, Object>> actions = new ArrayList<>();
         for(int i = 1; i <30; i++){
-            actions.add(Map.of("x", i+1, "y", i));
+            actions.add(Map.of("time", i+100));
         }
-        controller.invoke("dividir", actions);
+        controller.invoke("dormir", actions);
 
 
         System.out.println("\n1º Politica:");
@@ -62,7 +70,6 @@ public class Main {
         }
 
         //Cambio en la Politica
-
         controller.setPolicy(new GreedyGroup());
 
         List<Map<String, Object>> actions1 = new ArrayList<>();

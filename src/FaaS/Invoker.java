@@ -11,23 +11,22 @@ import java.util.function.Function;
 
 
 /**
- * Clase FaaS.Invoker que administra la ejecución de acciones, tanto sincrónicas como asincrónicas,
+ * Clase Invoker que administra la ejecución de acciones, tanto sincrónicas como asincrónicas,
  * gestionando la memoria requerida para cada acción y manteniendo un contador de acciones ejecutadas.
  */
 public class Invoker {
     private final int id;
-    private final ExecutorService executor; //Ejecutor para manejar aciones asincronas (Thread Pool)
     private final AtomicInteger memory; //Memoria del Invoker controlada de manera atómica para multithreading
     private int actionCount = 0; //Cantidad de acciones ejecutadas
-
+    private final ExecutorService executor; //Ejecutor para manejar aciones asincronas (Thread Pool)
     private final List<Observer> observers = new ArrayList<>(); //Lista de observers que apuntaran al controller
 
 
     /**
-     * Constructor de FaaS.Invoker.
-     * Inicializa el FaaS.Invoker con una cantidad específica de memoria y un servicio de ejecución.
+     * Constructor del Invoker.
+     * Inicializa el Invoker con una cantidad específica de memoria y un servicio de ejecución.
      *
-     * @param id  Número de identidad del FaaS.Invoker creado
+     * @param id  Número de identidad del Invoker creado
      * @param mem Cantidad inicial de memoria disponible.
      */
     public Invoker(int id, int mem) {
@@ -42,7 +41,7 @@ public class Invoker {
 
 
     /**
-     * Obtiene el número de acciones ejecutadas por este FaaS.Invoker.
+     * Obtiene el número de acciones ejecutadas por este Invoker.
      *
      * @return Número de acciones ejecutadas.
      */
@@ -52,7 +51,7 @@ public class Invoker {
 
 
     /**
-     * Obtiene la cantidad actual de memoria disponible en el FaaS.Invoker.
+     * Obtiene la cantidad actual de memoria disponible en el Invoker.
      *
      * @return Cantidad de memoria disponible.
      */
@@ -72,7 +71,7 @@ public class Invoker {
     }
 
     /**
-     * Verifica si el FaaS.Invoker tiene suficiente memoria disponible para una operación.
+     * Verifica si el Invoker tiene suficiente memoria disponible para una operación.
      *
      * @param requiredMemory Cantidad de memoria requerida para la operación.
      * @return true si hay suficiente memoria disponible, false en caso contrario.
@@ -118,17 +117,17 @@ public class Invoker {
      * @return Resultado de la acción ejecutada.
      */
     public Object executeAction(Function<Map<String, Object>, Object> action, Map<String, Object> parameters, int memoryRequired) {
-        long startTime = System.currentTimeMillis(); // Start time
+        long startTime = System.currentTimeMillis();
         Object result;
         try {
             result = action.apply(parameters);
         } finally {
             releaseMemory(memoryRequired); // Release memory after action
-            long endTime = System.currentTimeMillis(); // End time
+            long endTime = System.currentTimeMillis();
             long executionTime = endTime - startTime; // Calculate execution time
 
             Metric metric = new Metric(this.id, executionTime, memoryRequired);
-            notifyObservers(metric); // Notify the Controller
+            notifyObservers(metric); // Notify the Controller if its defined
         }
 
         actionCount++; // Increase action count

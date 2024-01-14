@@ -18,3 +18,4 @@ restar x=10 y=4
 multiplicar x=2 y=6
 dividir x=20 y=4
 dormir time=3000
+factorial number=10

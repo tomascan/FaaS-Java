@@ -12,7 +12,7 @@ public class ActionInvocationHandler implements InvocationHandler {
     private final Controller controller;
 
     /**
-     * Constructor de FaaS.ActionInvocationHandler.
+     * Constructor de ActionInvocationHandler.
      *
      * @param controller El controlador al cual redirigir las llamadas de método.
      */
@@ -39,7 +39,6 @@ public class ActionInvocationHandler implements InvocationHandler {
         if (Actions.class.getDeclaredField(actionName) != null) {
             return controller.invoke(actionName, (Map<String, Object>) args[0]);
         }
-
         return null;
     }
 }

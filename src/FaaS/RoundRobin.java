@@ -35,7 +35,7 @@ public class RoundRobin implements Policy {
             invokerIndex = (invokerIndex + 1) % invokers.size();
         }
 
-        return allocation;
+        return allocation; //Map de Invokers y lista de acciones distribuidas para cada uno
     }
 }
 

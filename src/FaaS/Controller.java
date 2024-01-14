@@ -6,22 +6,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Clase FaaS.Controller que gestiona la invocación de acciones utilizando múltiples invocadores.
+ * Clase Controller que gestiona la invocación de acciones utilizando múltiples invocadores.
  * Permite la registración y ejecución de acciones, tanto de manera sincrónica como asincrónica,
  * y administra la distribución de las acciones entre los invocadores según una política definida.
  */
 public class Controller implements Observer{
     final Invoker[] invokers; //Lista de Invokers
-    private Policy policy; //Policy Manager
-
     // Mapa que asocia nombres de acción con sus respectivas funciones.
     private final Map<String, Function<Map<String, Object>, Object>> actions = new HashMap<>();
     private final Map<String, Integer> actionMemory = new HashMap<>(); // Mapa almacena la memoria requerida para cada acción.
-
+    private Policy policy; //Policy Manager
     private final List<Metric> metrics = new ArrayList<>();
 
     /**
-     * Constructor de FaaS.Controller.
+     * Constructor de Controller.
      * Inicializa un array de invocadores con la capacidad de memoria especificada.
      *
      * @param numberOfInvokers Número de invocadores a crear.
@@ -38,7 +36,7 @@ public class Controller implements Observer{
     /**
      * Establece la política de distribución de acciones.
      *
-     * @param policy Objeto FaaS.Policy a establecer.
+     * @param policy Objeto Policy a establecer.
      */
     public void setPolicy(Policy policy){
         this.policy = policy;
@@ -54,9 +52,8 @@ public class Controller implements Observer{
      */
     public void registerAction(String actionName, Function<Map<String, Object>, Object> action, int memory) {
         actions.put(actionName, action);
-        actionMemory.put(actionName, memory); // Almacenar la memoria requerida para la acción
+        actionMemory.put(actionName, memory);
     }
-
 
     public Invoker[] getInvokers() {
         return invokers;
@@ -123,9 +120,7 @@ public class Controller implements Observer{
 
 
 
-    // INVOKE FILES FOR NUMERIC ACTIONS
-
-    //INVOCAR ACCIONES AGRUPADAS DESDE FICHEROS
+    //----------------------- FICHEROS ------------------------------------
     public void invokeFile(List<Map<String, Object>> actionDataList) {
         if (policy == null) {
             throw new IllegalStateException("Política no establecida");
@@ -226,7 +221,7 @@ public class Controller implements Observer{
 
 
 
-    // DECORATOR --------------------------------------------
+    // ---------------------------------- DECORATOR --------------------------------------------
     private final Map<String, Map<Map<String, Object>, Object>> cache = new HashMap<>();
 
     /**
